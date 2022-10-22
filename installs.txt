@@ -1,0 +1,87 @@
+#################### Apps ####################
+
+- Zoom
+- Teams
+- Slack
+- Skype
+- Postman
+- Chrome
+- Atom
+- Terminal
+- IntelliJ
+- Termius
+
+#################### Tools ###################
+
+brew install git gh
+
+brew install python
+brew install ansible
+brew install terraform
+brew install awscli
+brew install azure-cli
+brew install --cask vagrant
+brew install --cask vagrant-manager
+
+# docker & k8s
+brew install --cask podman-desktop
+brew install kubernetes-cli
+brew install helm
+brew install fluxcd/tap/flux
+brew install kubeseal
+brew install k9s
+
+# https://github.com/graalvm/homebrew-tap
+brew install --cask graalvm/tap/graalvm-ce-java17
+brew install --cask graalvm/tap/graalvm-ce-java11
+brew install --cask graalvm/tap/graalvm-ce-java8
+
+brew install --cask temurin
+brew install --cask temurin11
+brew install --cask temurin8
+
+brew install maven gradle
+brew install sonarqube
+brew install kafka
+
+brew install --cask mysqlworkbench
+brew install --cask nosqlbooster-for-mongodb
+brew install mysql-client
+brew install postgresql
+
+brew install scala
+brew install apache-spark
+brew install apache-flink
+
+brew install cf
+brew install node
+brew install nikto nmap sqlmap sslscan
+brew tap snyk/tap && brew install snyk
+brew tap vectordotdev/brew && brew install vector
+
+#################### Utils ###################
+
+brew install --cask atom
+brew install --cask termius
+brew install --cask vlc
+brew install --cask iglance
+brew install vim curl wget htop telnet jq ffmpeg
+
+brew tap teamookla/speedtest
+brew update
+brew install speedtest
+
+brew install cmus
+pip install cmus-osx
+cmus-osx install
+brew install yt-dlp
+
+brew install tmux
+brew install sl
+brew install cmatrix
+brew install asciiquarium
+
+brew tap homebrew/cask-fonts && brew install --cask font-meslo-lg-nerd-font
+brew install romkatv/powerlevel10k/powerlevel10k
+echo "source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme" >> ~/.zshrc
+brew install zsh-syntax-highlighting
