@@ -32,7 +32,7 @@ brew install kubeseal
 brew install k9s
 
 # https://github.com/graalvm/homebrew-tap
-brew install --cask graalvm/tap/graalvm-ce-java17
+brew install --cask graalvm/tap/graalvm-ce-java19
 brew install --cask graalvm/tap/graalvm-ce-java11
 brew install --cask graalvm/tap/graalvm-ce-java8
 
