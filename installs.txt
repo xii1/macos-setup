@@ -74,6 +74,7 @@ brew install speedtest
 brew install cmus
 pip install cmus-osx
 cmus-osx install
+brew install --cask notunes
 brew install yt-dlp
 
 brew install tmux
