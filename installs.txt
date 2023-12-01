@@ -33,7 +33,7 @@ brew install k9s
 
 # https://github.com/graalvm/homebrew-tap
 brew install --cask graalvm/tap/graalvm-community-jdk17
-brew install --cask graalvm/tap/graalvm-community-jdk20
+brew install --cask graalvm/tap/graalvm-community-jdk21
 
 brew install --cask temurin
 brew install --cask temurin17
