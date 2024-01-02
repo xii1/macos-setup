@@ -32,11 +32,10 @@ brew install kubeseal
 brew install k9s
 
 # https://github.com/graalvm/homebrew-tap
-brew install --cask graalvm/tap/graalvm-community-jdk17
 brew install --cask graalvm/tap/graalvm-community-jdk21
 
+# OpenJDK
 brew install --cask temurin
-brew install --cask temurin17
 
 brew install maven gradle
 brew install sonarqube
