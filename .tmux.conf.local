@@ -445,6 +445,7 @@ set -g @dracula-show-location true
 # available colors: white, gray, dark_gray, light_purple, dark_purple, cyan, green, orange, red, pink, yellow
 # set -g @dracula-[plugin-name]-colors "[background] [foreground]"
 set -g @dracula-network-bandwidth-colors "green dark_gray"
+set -g @dracula-weather-colors "white dark_purple"
 
 #set -g @plugin 'tmux-plugins/tmux-copycat'
 #set -g @plugin 'tmux-plugins/tmux-cpu'
