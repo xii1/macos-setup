@@ -20,8 +20,7 @@ brew install ansible
 brew install terraform
 brew install awscli
 brew install azure-cli
-brew install --cask vagrant
-brew install --cask vagrant-manager
+brew install multipass
 
 # docker & k8s
 brew install --cask podman-desktop
@@ -30,6 +29,7 @@ brew install helm
 brew install fluxcd/tap/flux
 brew install kubeseal
 brew install k9s
+brew install k3sup
 
 # https://github.com/graalvm/homebrew-tap
 brew install --cask graalvm/tap/graalvm-community-jdk21
