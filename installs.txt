@@ -53,8 +53,7 @@ brew install apache-flink
 brew install cf
 brew install node
 brew install nikto nmap sqlmap sslscan
-brew tap snyk/tap && brew install snyk
-brew tap vectordotdev/brew && brew install vector
+brew install --cask metasploit
 
 brew tap hashicorp/tap
 brew install hashicorp/tap/vault
