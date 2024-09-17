@@ -64,7 +64,7 @@ brew install --cask atom
 brew install --cask termius
 brew install --cask vlc
 brew install --cask iglance
-brew install vim curl wget htop telnet jq ffmpeg
+brew install vim tree curl wget htop telnet jq ffmpeg
 
 brew tap teamookla/speedtest
 brew update
