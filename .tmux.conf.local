@@ -459,7 +459,7 @@ set -g @continuum-restore 'on'
 set -g @continuum-boot 'on'
 
 set -g @plugin 'tmux-plugins/tmux-sidebar'
-set -g @sidebar-tree-command 'tree -C'
+set -g @sidebar-tree-command 'tree -aC --dirsfirst -L 1'
 
 
 # -- custom variables ----------------------------------------------------------
