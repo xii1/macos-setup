@@ -69,6 +69,10 @@ class Indicator {
       }
     }
   public:
+    ~Indicator() {
+      cleanData();
+    }
+    
     void collectData(int period) {
       cleanData();
       
@@ -81,10 +85,6 @@ class Indicator {
     IIndicatorData* getData(int shift) {
       if (shift >= 0 && shift < ArraySize(data)) return data[shift];
       else return NULL;
-    }
-    
-    ~Indicator() {
-      cleanData();
     }
 };
 
@@ -315,23 +315,79 @@ class OrderSender {
 
 interface ISignalDetector {
   public:
+    void collectData(IndicatorDataCollector&);
     bool isBuySignal();
     bool isSellSignal();
+};
+
+class DefaultSignalDetector : public ISignalDetector {
+  public:
+    void collectData(IndicatorDataCollector& collector) {
+    
+    }
+    
+    bool isBuySignal() {
+      return true;
+    }
+    
+    bool isSellSignal() {
+      return true;
+    }
+};
+
+class USDJPYSignalDetector : public ISignalDetector {
+  public:
+    void collectData(IndicatorDataCollector& collector) {
+    
+    }
+    
+    bool isBuySignal() {
+      return true;
+    }
+    
+    bool isSellSignal() {
+      return true;
+    }
 };
 
 // ------------------------------------------------------------------
 
 class SmartTrader {
   private:
+    IndicatorDataCollector collector;
     ISignalDetector* signalDetector;
+  protected:
+    void cleanUp() {
+      if (signalDetector != NULL) {
+        delete signalDetector;
+        signalDetector = NULL;
+      }
+    }
   public:
-    void setSignalDetector(ISignalDetector* _signalDetector) {
-      this.signalDetector = _signalDetector;
+    ~SmartTrader() {
+      cleanUp();
+    }
+    
+    void useStrategy(string name) {
+      cleanUp();
+      
+      if (name == "USDJPY") {
+        signalDetector = new USDJPYSignalDetector();
+      } else {
+        signalDetector = new DefaultSignalDetector();
+      }
     }
     
     void execute() {
-      if (OrdersTotal() == 0) {
-        OrderSender::send(BuyOrder(0.1, Ask, Ask - 10, Ask + 10));
+      signalDetector.collectData(collector);
+      if (signalDetector.isBuySignal()) {
+        if (OrdersTotal() == 0) {
+          OrderSender::send(BuyOrder(0.1, Ask, Ask - 10, Ask + 10));
+        }
+      } else if (signalDetector.isSellSignal()) {
+        if (OrdersTotal() == 0) {
+          OrderSender::send(SellOrder(0.1, Bid, Bid + 10, Bid - 10));
+        }
       }
     }
 };
@@ -345,6 +401,7 @@ SmartTrader trader;
 int OnInit() {
 //--- create timer
   EventSetTimer(60);
+  trader.useStrategy(Symbol());
   Alert("Smart Trader has started for automatic trading ", Symbol(), " in timeframe ", Period(), " minutes.");
 //---
   return(INIT_SUCCEEDED);
