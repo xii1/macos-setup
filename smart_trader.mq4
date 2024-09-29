@@ -11,6 +11,9 @@
 // ------------------------------------------------------------------
 // DEFINE CONSTANTS
 
+#define SAR_STEP 0.02
+#define SAR_MAXIMUM 0.2
+
 #define ICHIMOKU1_TENKANSEN_PERIOD 9
 #define ICHIMOKU1_KIJUNSEN_PERIOD 17
 #define ICHIMOKU1_SENKOUSPAN_PERIOD 26
@@ -23,6 +26,7 @@
 // INDICATOR DATA
 
 interface IIndicatorData { };
+
 // =====================================
 
 class IchimokuIndicatorData : public IIndicatorData {
@@ -63,15 +67,28 @@ class VolumeIndicatorData : public IIndicatorData {
     long volume;
     long avgVolume;
 };
+
+class SARIndicatorData : public IIndicatorData {
+  public:
+    double sarValue;
+};
+
+class PriceIndicatorData : public IIndicatorData {
+  public:
+    double closeValue;
+    double highValue;
+    double lowValue;
+};
+
 // ------------------------------------------------------------------
 // INDICATOR
 
 class Indicator {
   protected:
     IIndicatorData* data[];
-    
+
     virtual IIndicatorData* calcValue(int shift) = 0;
-    
+
     void cleanData() {
       for (int i = 0; i < ArraySize(data); ++i) {
         if (data[i] != NULL) {
@@ -84,21 +101,22 @@ class Indicator {
     ~Indicator() {
       cleanData();
     }
-    
+
     void collectData(int period) {
       cleanData();
-      
+
       if (period < 0) ArrayResize(data, 1);
       else ArrayResize(data, period + 1);
-      
+
       for (int i = 0; i < ArraySize(data); ++i) data[i] = calcValue(i);
     }
-    
+
     IIndicatorData* getData(int shift) {
       if (shift >= 0 && shift < ArraySize(data)) return data[shift];
       else return NULL;
     }
 };
+
 // =====================================
 
 class IchimokuIndicator : public Indicator {
@@ -149,7 +167,7 @@ class MACDIndicator : public Indicator {
   private:
     int fastEMAPeriod;
     int slowEMAPeriod;
-    int signalPeriod;   
+    int signalPeriod;
     ENUM_APPLIED_PRICE appliedPrice;
     int timeframe;
   protected:
@@ -228,7 +246,7 @@ class VolumeIndicator : public Indicator {
       for (int i = 0; i < period; ++i) {
         totalVolume += iVolume(NULL, 0, shift + i);
       }
-    
+
       VolumeIndicatorData* d = new VolumeIndicatorData();
       d.volume = iVolume(NULL, timeframe, shift);
       d.avgVolume = totalVolume / period;
@@ -240,6 +258,43 @@ class VolumeIndicator : public Indicator {
       this.timeframe = _timeframe;
     }
 };
+
+class SARIndicator : public Indicator {
+  private:
+    double step;
+    double maximum;
+    int timeframe;
+  protected:
+    IIndicatorData* calcValue(int shift) {
+      SARIndicatorData* d = new SARIndicatorData();
+      d.sarValue = iSAR(NULL, timeframe, step, maximum, shift);
+      return d;
+    }
+  public:
+    SARIndicator(double _step, double _maximum, int _timeframe = PERIOD_CURRENT) {
+      this.step = _step;
+      this.maximum = _maximum;
+      this.timeframe = _timeframe;
+    }
+};
+
+class PriceIndicator : public Indicator {
+  private:
+    int timeframe;
+  protected:
+    IIndicatorData* calcValue(int shift) {
+      PriceIndicatorData* d = new PriceIndicatorData();
+      d.closeValue = iClose(NULL, timeframe, shift);
+      d.highValue = iHigh(NULL, timeframe, shift);
+      d.lowValue = iLow(NULL, timeframe, shift);
+      return d;
+    }
+  public:
+    PriceIndicator(int _timeframe = PERIOD_CURRENT) {
+      this.timeframe = _timeframe;
+    }
+};
+
 // ------------------------------------------------------------------
 // DATA COLLECTOR
 
@@ -266,7 +321,7 @@ class Order {
     double takeProfit;
     string comment;
     color lineColor;
-    
+
     Order(string _symbol, ENUM_ORDER_TYPE _orderType, double _lotSize, double _price, int _slippage, double _stopLoss, double _takeProfit, string _comment, color _lineColor) {
       this.symbol = _symbol;
       this.orderType = _orderType;
@@ -278,7 +333,7 @@ class Order {
       this.comment = _comment;
       this.lineColor = _lineColor;
     }
-    
+
     string info() {
       return comment + " lotSize=" + (string)lotSize + ", price=" + (string)price + ", stopLoss=" + (string)stopLoss + ", takeProfit=" + (string)takeProfit + ".";
     }
@@ -286,25 +341,25 @@ class Order {
 
 class BuyOrder : public Order {
   public:
-    BuyOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+    BuyOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
       Order(Symbol(), ORDER_TYPE_BUY, _lotSize, _price, 1, _stopLoss, _takeProfit, "Buy " + Symbol(), clrGreen) { }
 };
 
 class SellOrder : public Order {
   public:
-    SellOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+    SellOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
       Order(Symbol(), ORDER_TYPE_SELL, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell " + Symbol(), clrRed) { }
 };
 
 class BuyLimitOrder : public Order {
   public:
-    BuyLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+    BuyLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
       Order(Symbol(), ORDER_TYPE_BUY_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Buy Limit " + Symbol(), clrGreen) { }
 };
 
 class SellLimitOrder : public Order {
   public:
-    SellLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+    SellLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
       Order(Symbol(), ORDER_TYPE_SELL_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell Limit " + Symbol(), clrRed) { }
 };
 
@@ -312,11 +367,11 @@ class OrderSender {
   public:
     static int send(Order& order) {
       int ticket = OrderSend(order.symbol, order.orderType, order.lotSize, order.price, order.slippage, order.stopLoss, order.takeProfit, order.comment, 0, 0, order.lineColor);
-      
+
       if (ticket < 0) {
         int errorCode = GetLastError();
         Alert("OrderSend failed with error code: ", errorCode, ". Order info: ", order.info());
-        
+
         switch (errorCode) {
           case 130: Print("Error: Invalid stop levels."); break;
           case 131: Print("Error: Invalid lot size."); break;
@@ -326,7 +381,7 @@ class OrderSender {
           default: Print("OrderSend failed with an unknown error.");
         }
         ResetLastError();
-        
+
         Print("MODE_LOTSIZE = ", MarketInfo(Symbol(), MODE_LOTSIZE));
         Print("MODE_MINLOT = ", MarketInfo(Symbol(), MODE_MINLOT));
         Print("MODE_LOTSTEP = ", MarketInfo(Symbol(), MODE_LOTSTEP));
@@ -334,10 +389,10 @@ class OrderSender {
       } else {
         Alert("OrderSend successful! Ticket number: ", ticket, ". Order info: ", order.info());
       }
-      
+
       return ticket;
     }
-    
+
     static bool modify(int orderTicket, double orderOpenPrice, double stopLoss, double takeProfit) {
       bool result = OrderModify(orderTicket, orderOpenPrice, stopLoss, takeProfit, 0, clrBlue);
       if(!result) {
@@ -351,100 +406,118 @@ class OrderSender {
 // ------------------------------------------------------------------
 // SIGNAL & TREND DECTECTOR
 
-interface ISignalDetector {
+interface ITradingDetector {
   public:
-    void collectData(IndicatorDataCollector&);
+    void collectData();
     bool isBuySignal();
     bool isSellSignal();
 };
 
-interface ITrendDetector : public ISignalDetector {
-  public:
-    bool isUpTrend();
-    bool isDownTrend();
+class SignalDetector : public ITradingDetector {
+  protected:
+    IndicatorDataCollector collector;
 };
+
+class TrendDetector : public ITradingDetector {
+  protected:
+    IndicatorDataCollector collector;
+  public:
+    virtual bool isUpTrend() = 0;
+    virtual bool isDownTrend() = 0;
+};
+
 // =====================================
 
-class WeekTrendDetector : public ITrendDetector {
+class WeekTrendDetector : public TrendDetector {
   private:
+    PriceIndicator weekPrice;
     IchimokuIndicator weekIcmk1;
     IchimokuIndicator weekIcmk2;
+    SARIndicator weekSAR;
   public:
     WeekTrendDetector() :
+      weekPrice(PERIOD_W1),
       weekIcmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, PERIOD_W1),
-      weekIcmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, PERIOD_W1) {}  
-    
-    void collectData(IndicatorDataCollector& collector) {
+      weekIcmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, PERIOD_W1),
+      weekSAR(SAR_STEP, SAR_MAXIMUM, PERIOD_W1) {}
+
+    void collectData() {
+      collector.collectData(weekPrice, 2);
       collector.collectData(weekIcmk1, 4);
       collector.collectData(weekIcmk2, 4);
+      collector.collectData(weekSAR, 2);
     }
-    
+
+    bool isUpTrend() {
+      double previousClosePrice = ((PriceIndicatorData*)collector.getData(weekPrice, 1)).closeValue;
+      double currentPrice = ((PriceIndicatorData*)collector.getData(weekPrice, 0)).closeValue;
+
+      return true;
+    }
+
+    bool isDownTrend() {
+      return true;
+    }
+
     bool isBuySignal() {
       return true;
     }
-    
+
     bool isSellSignal() {
       return true;
-    }
-     
-    bool isUpTrend() {
-      return true;
-    }
-    
-    bool isDownTrend() {
-     return true;
     }
 };
 
-class DayTrendDetector : public ITrendDetector {
+class DayTrendDetector : public TrendDetector {
   public:
-    void collectData(IndicatorDataCollector& collector) {
-    
+    void collectData() {
+
     }
-    
-    bool isBuySignal() {
-      return true;
-    }
-    
-    bool isSellSignal() {
-      return true;
-    }
-     
+
     bool isUpTrend() {
       return true;
     }
-    
+
     bool isDownTrend() {
-     return true;
+      return true;
+    }
+
+    bool isBuySignal() {
+      return true;
+    }
+
+    bool isSellSignal() {
+      return true;
     }
 };
+
 // =====================================
 
-class DefaultSignalDetector : public ISignalDetector {
+class DefaultSignalDetector : public SignalDetector {
   public:
-    void collectData(IndicatorDataCollector& collector) {
-    
+    void collectData() {
+
     }
-    
+
     bool isBuySignal() {
       return true;
     }
-    
+
     bool isSellSignal() {
       return true;
     }
 };
 
-class USDJPYSignalDetector : public ISignalDetector {
+class USDJPYSignalDetector : public SignalDetector {
   public:
-    void collectData(IndicatorDataCollector& collector) {
-    
+    void collectData() {
+
     }
-    
+
     bool isBuySignal() {
       return true;
     }
-    
+
     bool isSellSignal() {
       return true;
     }
@@ -455,43 +528,43 @@ class USDJPYSignalDetector : public ISignalDetector {
 
 class SmartTrader {
   private:
-    IndicatorDataCollector collector;
-    ISignalDetector* signalDetector;
+    ITradingDetector* detector;
   protected:
     void cleanUp() {
-      if (signalDetector != NULL) {
-        delete signalDetector;
-        signalDetector = NULL;
+      if (detector != NULL) {
+        delete detector;
+        detector = NULL;
       }
     }
   public:
     ~SmartTrader() {
       cleanUp();
     }
-    
+
     void useStrategy(string name) {
       cleanUp();
-      
+
       if (name == "USDJPY") {
-        signalDetector = new USDJPYSignalDetector();
+        detector = new USDJPYSignalDetector();
       } else {
-        signalDetector = new DefaultSignalDetector();
+        detector = new DefaultSignalDetector();
       }
     }
-    
+
     void execute() {
-      signalDetector.collectData(collector);
-      if (signalDetector.isBuySignal()) {
+      detector.collectData();
+      if (detector.isBuySignal()) {
         if (OrdersTotal() == 0) {
           OrderSender::send(BuyOrder(0.1, Ask, Ask - 10, Ask + 10));
         }
-      } else if (signalDetector.isSellSignal()) {
+      } else if (detector.isSellSignal()) {
         if (OrdersTotal() == 0) {
           OrderSender::send(SellOrder(0.1, Bid, Bid + 10, Bid - 10));
         }
       }
     }
 };
+
 // ------------------------------------------------------------------
 // GLOBAL VARIABLES
 
