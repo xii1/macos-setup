@@ -9,10 +9,21 @@
 #property strict
 
 // ------------------------------------------------------------------
+// DEFINE CONSTANTS
+
+#define ICHIMOKU1_TENKANSEN_PERIOD 9
+#define ICHIMOKU1_KIJUNSEN_PERIOD 17
+#define ICHIMOKU1_SENKOUSPAN_PERIOD 26
+
+#define ICHIMOKU2_TENKANSEN_PERIOD 65
+#define ICHIMOKU2_KIJUNSEN_PERIOD 129
+#define ICHIMOKU2_SENKOUSPAN_PERIOD 52
 
 // ------------------------------------------------------------------
+// INDICATOR DATA
 
 interface IIndicatorData { };
+// =====================================
 
 class IchimokuIndicatorData : public IIndicatorData {
   public:
@@ -53,6 +64,7 @@ class VolumeIndicatorData : public IIndicatorData {
     long avgVolume;
 };
 // ------------------------------------------------------------------
+// INDICATOR
 
 class Indicator {
   protected:
@@ -87,6 +99,7 @@ class Indicator {
       else return NULL;
     }
 };
+// =====================================
 
 class IchimokuIndicator : public Indicator {
   private:
@@ -228,6 +241,7 @@ class VolumeIndicator : public Indicator {
     }
 };
 // ------------------------------------------------------------------
+// DATA COLLECTOR
 
 class IndicatorDataCollector {
   public:
@@ -239,6 +253,7 @@ class IndicatorDataCollector {
     }
 };
 // ------------------------------------------------------------------
+// ORDER & UTILITIES
 
 class Order {
   public:
@@ -281,6 +296,18 @@ class SellOrder : public Order {
       Order(Symbol(), ORDER_TYPE_SELL, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell " + Symbol(), clrRed) { }
 };
 
+class BuyLimitOrder : public Order {
+  public:
+    BuyLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+      Order(Symbol(), ORDER_TYPE_BUY_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Buy Limit " + Symbol(), clrGreen) { }
+};
+
+class SellLimitOrder : public Order {
+  public:
+    SellLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) : 
+      Order(Symbol(), ORDER_TYPE_SELL_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell Limit " + Symbol(), clrRed) { }
+};
+
 class OrderSender {
   public:
     static int send(Order& order) {
@@ -310,8 +337,19 @@ class OrderSender {
       
       return ticket;
     }
+    
+    static bool modify(int orderTicket, double orderOpenPrice, double stopLoss, double takeProfit) {
+      bool result = OrderModify(orderTicket, orderOpenPrice, stopLoss, takeProfit, 0, clrBlue);
+      if(!result) {
+        Alert("OrderModify failed with error code: ", GetLastError(), ". Ticket number: ", orderTicket);
+      } else {
+        Alert("OrderModify successful! Ticket number: ", orderTicket);
+       }
+       return result;
+    }
 };
 // ------------------------------------------------------------------
+// SIGNAL & TREND DECTECTOR
 
 interface ISignalDetector {
   public:
@@ -319,6 +357,68 @@ interface ISignalDetector {
     bool isBuySignal();
     bool isSellSignal();
 };
+
+interface ITrendDetector : public ISignalDetector {
+  public:
+    bool isUpTrend();
+    bool isDownTrend();
+};
+// =====================================
+
+class WeekTrendDetector : public ITrendDetector {
+  private:
+    IchimokuIndicator weekIcmk1;
+    IchimokuIndicator weekIcmk2;
+  public:
+    WeekTrendDetector() :
+      weekIcmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, PERIOD_W1),
+      weekIcmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, PERIOD_W1) {}  
+    
+    void collectData(IndicatorDataCollector& collector) {
+      collector.collectData(weekIcmk1, 4);
+      collector.collectData(weekIcmk2, 4);
+    }
+    
+    bool isBuySignal() {
+      return true;
+    }
+    
+    bool isSellSignal() {
+      return true;
+    }
+     
+    bool isUpTrend() {
+      return true;
+    }
+    
+    bool isDownTrend() {
+     return true;
+    }
+};
+
+class DayTrendDetector : public ITrendDetector {
+  public:
+    void collectData(IndicatorDataCollector& collector) {
+    
+    }
+    
+    bool isBuySignal() {
+      return true;
+    }
+    
+    bool isSellSignal() {
+      return true;
+    }
+     
+    bool isUpTrend() {
+      return true;
+    }
+    
+    bool isDownTrend() {
+     return true;
+    }
+};
+// =====================================
 
 class DefaultSignalDetector : public ISignalDetector {
   public:
@@ -351,6 +451,7 @@ class USDJPYSignalDetector : public ISignalDetector {
 };
 
 // ------------------------------------------------------------------
+// TRADER
 
 class SmartTrader {
   private:
@@ -392,12 +493,14 @@ class SmartTrader {
     }
 };
 // ------------------------------------------------------------------
+// GLOBAL VARIABLES
 
 SmartTrader trader;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
+
 int OnInit() {
 //--- create timer
   EventSetTimer(60);
@@ -406,17 +509,21 @@ int OnInit() {
 //---
   return(INIT_SUCCEEDED);
 }
+
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
+
 void OnDeinit(const int reason) {
 //--- destroy timer
   Alert("Smart Trader has stopped for automatic trading ", Symbol(), " in timeframe ", Period(), " minutes.");
   EventKillTimer();
 }
+
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
+
 void OnTick() {
   trader.execute();
 }
