@@ -307,6 +307,7 @@ class IndicatorDataCollector {
       return indicator.getData(shift);
     }
 };
+
 // ------------------------------------------------------------------
 // ORDER & UTILITIES
 
@@ -403,92 +404,120 @@ class OrderSender {
        return result;
     }
 };
+
 // ------------------------------------------------------------------
-// SIGNAL & TREND DECTECTOR
+// TREND DECTECTOR
 
-interface ITradingDetector {
-  public:
-    void collectData();
-    bool isBuySignal();
-    bool isSellSignal();
-};
-
-class SignalDetector : public ITradingDetector {
-  protected:
-    IndicatorDataCollector collector;
-};
-
-class TrendDetector : public ITradingDetector {
+class TrendDetector {
+  private:
+    PriceIndicator price;
+    IchimokuIndicator icmk1;
+    IchimokuIndicator icmk2;
+    SARIndicator sar;
   protected:
     IndicatorDataCollector collector;
   public:
-    virtual bool isUpTrend() = 0;
-    virtual bool isDownTrend() = 0;
+    TrendDetector(int timeframe = PERIOD_CURRENT) :
+      price(timeframe),
+      icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, timeframe),
+      icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, timeframe),
+      sar(SAR_STEP, SAR_MAXIMUM, timeframe) {}
+
+    void collectData() {
+      collector.collectData(price, 2);
+      collector.collectData(icmk1, 2);
+      collector.collectData(icmk2, 2);
+      collector.collectData(sar, 2);
+    }
+
+    bool isUpTrend() {
+      double prevClosePrice = ((PriceIndicatorData*)collector.getData(price, 1)).closeValue;
+      double currentPrice = ((PriceIndicatorData*)collector.getData(price, 0)).closeValue;
+
+      double prevTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).tenkanSen;
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).tenkanSen;
+
+      double prevKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).kijunSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).kijunSen;
+
+      double prevSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanA;
+      double currentSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanA;
+
+      double prevSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanB;
+      double currentSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanB;
+
+      double prevSAR = ((SARIndicatorData*)collector.getData(sar, 1)).sarValue;
+      double currentSAR = ((SARIndicatorData*)collector.getData(sar, 0)).sarValue;
+
+      bool prevClosePriceCondition = (prevClosePrice > prevSAR)
+                                     && (prevClosePrice > prevTenkanSen) && (prevClosePrice > prevKijunSen)
+                                     && (prevClosePrice > prevSenkouSpanA) && (prevClosePrice > prevSenkouSpanB);
+
+      bool currentPriceCondition = (currentPrice >= currentSAR)
+                                     && (currentPrice >= currentTenkanSen) && (currentPrice >= currentKijunSen)
+                                     && (currentPrice >= currentSenkouSpanA) && (currentPrice >= currentSenkouSpanB);
+
+      return prevClosePriceCondition && currentPriceCondition;
+    }
+
+    bool isDownTrend() {
+      double prevClosePrice = ((PriceIndicatorData*)collector.getData(price, 1)).closeValue;
+      double currentPrice = ((PriceIndicatorData*)collector.getData(price, 0)).closeValue;
+
+      double prevTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).tenkanSen;
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).tenkanSen;
+
+      double prevKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).kijunSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).kijunSen;
+
+      double prevSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanA;
+      double currentSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanA;
+
+      double prevSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanB;
+      double currentSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanB;
+
+      double prevSAR = ((SARIndicatorData*)collector.getData(sar, 1)).sarValue;
+      double currentSAR = ((SARIndicatorData*)collector.getData(sar, 0)).sarValue;
+
+      bool prevClosePriceCondition = (prevClosePrice < prevSAR)
+                                     && (prevClosePrice < prevTenkanSen) && (prevClosePrice < prevKijunSen)
+                                     && (prevClosePrice < prevSenkouSpanA) && (prevClosePrice < prevSenkouSpanB);
+
+      bool currentPriceCondition = (currentPrice <= currentSAR)
+                                     && (currentPrice <= currentTenkanSen) && (currentPrice <= currentKijunSen)
+                                     && (currentPrice <= currentSenkouSpanA) && (currentPrice <= currentSenkouSpanB);
+
+      return prevClosePriceCondition && currentPriceCondition;
+    }
 };
 
 // =====================================
 
 class WeekTrendDetector : public TrendDetector {
-  private:
-    PriceIndicator weekPrice;
-    IchimokuIndicator weekIcmk1;
-    IchimokuIndicator weekIcmk2;
-    SARIndicator weekSAR;
   public:
-    WeekTrendDetector() :
-      weekPrice(PERIOD_W1),
-      weekIcmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, PERIOD_W1),
-      weekIcmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, PERIOD_W1),
-      weekSAR(SAR_STEP, SAR_MAXIMUM, PERIOD_W1) {}
-
-    void collectData() {
-      collector.collectData(weekPrice, 2);
-      collector.collectData(weekIcmk1, 4);
-      collector.collectData(weekIcmk2, 4);
-      collector.collectData(weekSAR, 2);
-    }
-
-    bool isUpTrend() {
-      double previousClosePrice = ((PriceIndicatorData*)collector.getData(weekPrice, 1)).closeValue;
-      double currentPrice = ((PriceIndicatorData*)collector.getData(weekPrice, 0)).closeValue;
-
-      return true;
-    }
-
-    bool isDownTrend() {
-      return true;
-    }
-
-    bool isBuySignal() {
-      return true;
-    }
-
-    bool isSellSignal() {
-      return true;
-    }
+    WeekTrendDetector() : TrendDetector(PERIOD_W1) {}
 };
 
 class DayTrendDetector : public TrendDetector {
   public:
-    void collectData() {
+    DayTrendDetector() : TrendDetector(PERIOD_D1) {}
+};
 
-    }
+class HourTrendDetector : public TrendDetector {
+  public:
+    HourTrendDetector() : TrendDetector(PERIOD_H1) {}
+};
 
-    bool isUpTrend() {
-      return true;
-    }
+// ------------------------------------------------------------------
+// SIGNAL DECTECTOR
 
-    bool isDownTrend() {
-      return true;
-    }
-
-    bool isBuySignal() {
-      return true;
-    }
-
-    bool isSellSignal() {
-      return true;
-    }
+class SignalDetector {
+  protected:
+    IndicatorDataCollector collector;
+  public:
+    virtual void collectData() = 0;
+    virtual bool isBuySignal() = 0;
+    virtual bool isSellSignal() = 0;
 };
 
 // =====================================
@@ -500,26 +529,34 @@ class DefaultSignalDetector : public SignalDetector {
     }
 
     bool isBuySignal() {
-      return true;
+      return false;
     }
 
     bool isSellSignal() {
-      return true;
+      return false;
     }
 };
 
 class USDJPYSignalDetector : public SignalDetector {
+  private:
+    WeekTrendDetector weekTrend;
+    DayTrendDetector dayTrend;
+    HourTrendDetector hourTrend;
+    TrendDetector currentTrend;
   public:
     void collectData() {
-
+      weekTrend.collectData();
+      dayTrend.collectData();
+      hourTrend.collectData();
+      currentTrend.collectData();
     }
 
     bool isBuySignal() {
-      return true;
+      return currentTrend.isUpTrend();
     }
 
     bool isSellSignal() {
-      return true;
+      return currentTrend.isDownTrend();
     }
 };
 
@@ -528,7 +565,7 @@ class USDJPYSignalDetector : public SignalDetector {
 
 class SmartTrader {
   private:
-    ITradingDetector* detector;
+    SignalDetector* detector;
   protected:
     void cleanUp() {
       if (detector != NULL) {
@@ -554,13 +591,21 @@ class SmartTrader {
     void execute() {
       detector.collectData();
       if (detector.isBuySignal()) {
-        if (OrdersTotal() == 0) {
-          OrderSender::send(BuyOrder(0.1, Ask, Ask - 10, Ask + 10));
-        }
-      } else if (detector.isSellSignal()) {
-        if (OrdersTotal() == 0) {
-          OrderSender::send(SellOrder(0.1, Bid, Bid + 10, Bid - 10));
-        }
+        Print(">>>>> BUY");
+        //if (OrdersTotal() < 3) {
+        //  OrderSender::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 5));
+        //}
+      } else {
+        Print(">>>>> NOT BUY");
+      }
+
+      if (detector.isSellSignal()) {
+        Print(">>>>> SELL");
+        //if (OrdersTotal() < 3) {
+        //  OrderSender::send(SellOrder(0.1, Bid, Bid + 5, Bid - 5));
+        //}
+      } else {
+        Print(">>>>> NOT SELL");
       }
     }
 };
