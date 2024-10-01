@@ -22,6 +22,12 @@
 #define ICHIMOKU2_KIJUNSEN_PERIOD 129
 #define ICHIMOKU2_SENKOUSPAN_PERIOD 52
 
+#define MACD_FAST_EMA_PERIOD 12
+#define MACD_SLOW_EMA_PERIOD 26
+#define MACD_SIGNAL_PERIOD 9
+
+#define RSI_PERIOD 14
+
 // ------------------------------------------------------------------
 // INDICATOR DATA
 
@@ -147,8 +153,8 @@ class IchimokuIndicator : public Indicator {
 class RSIIndicator : public Indicator {
   private:
     int period;
-    ENUM_APPLIED_PRICE appliedPrice;
     int timeframe;
+    ENUM_APPLIED_PRICE appliedPrice;
   protected:
     IIndicatorData* calcValue(int shift) {
       RSIIndicatorData* d = new RSIIndicatorData();
@@ -156,10 +162,10 @@ class RSIIndicator : public Indicator {
       return d;
     }
   public:
-    RSIIndicator(int _period, ENUM_APPLIED_PRICE _appliedPrice, int _timeframe = PERIOD_CURRENT) {
+    RSIIndicator(int _period, int _timeframe = PERIOD_CURRENT, ENUM_APPLIED_PRICE _appliedPrice = PRICE_CLOSE) {
       this.period = _period;
-      this.appliedPrice = _appliedPrice;
       this.timeframe = timeframe;
+      this.appliedPrice = _appliedPrice;
     }
 };
 
@@ -168,8 +174,8 @@ class MACDIndicator : public Indicator {
     int fastEMAPeriod;
     int slowEMAPeriod;
     int signalPeriod;
-    ENUM_APPLIED_PRICE appliedPrice;
     int timeframe;
+    ENUM_APPLIED_PRICE appliedPrice;
   protected:
     IIndicatorData* calcValue(int shift) {
       MACDIndicatorData* d = new MACDIndicatorData();
@@ -179,12 +185,13 @@ class MACDIndicator : public Indicator {
       return d;
     }
   public:
-    MACDIndicator(int _fastEMAPeriod, int _slowEMAPeriod, int _signalPeriod, ENUM_APPLIED_PRICE _appliedPrice, int _timeframe = PERIOD_CURRENT) {
+    MACDIndicator(int _fastEMAPeriod, int _slowEMAPeriod, int _signalPeriod, int _timeframe = PERIOD_CURRENT, ENUM_APPLIED_PRICE _appliedPrice = PRICE_CLOSE) {
       this.fastEMAPeriod = _fastEMAPeriod;
       this.slowEMAPeriod = _slowEMAPeriod;
       this.signalPeriod = _signalPeriod;
       this.appliedPrice = _appliedPrice;
       this.timeframe = _timeframe;
+      this.appliedPrice = _appliedPrice;
     }
 };
 
@@ -193,8 +200,8 @@ class MAIndicator : public Indicator {
     int maPeriod;
     int maShift;
     ENUM_MA_METHOD maMethod;
-    ENUM_APPLIED_PRICE appliedPrice;
     int timeframe;
+    ENUM_APPLIED_PRICE appliedPrice;
   protected:
     IIndicatorData* calcValue(int shift) {
       MAIndicatorData* d = new MAIndicatorData();
@@ -202,12 +209,12 @@ class MAIndicator : public Indicator {
       return d;
     }
   public:
-    MAIndicator(int _maPeriod, ENUM_MA_METHOD _maMethod, ENUM_APPLIED_PRICE _appliedPrice, int _timeframe = PERIOD_CURRENT) {
+    MAIndicator(int _maPeriod, ENUM_MA_METHOD _maMethod, int _timeframe = PERIOD_CURRENT, ENUM_APPLIED_PRICE _appliedPrice = PRICE_CLOSE) {
       this.maPeriod = _maPeriod;
       this.maShift = 0;
       this.maMethod = _maMethod;
-      this.appliedPrice = _appliedPrice;
       this.timeframe = _timeframe;
+      this.appliedPrice = _appliedPrice;
     }
 };
 
@@ -216,8 +223,8 @@ class BBIndicator : public Indicator {
     int period;
     double deviation;
     int bandsShift;
-    ENUM_APPLIED_PRICE appliedPrice;
     int timeframe;
+    ENUM_APPLIED_PRICE appliedPrice;
   protected:
     IIndicatorData* calcValue(int shift) {
       BBIndicatorData* d = new BBIndicatorData();
@@ -227,12 +234,12 @@ class BBIndicator : public Indicator {
       return d;
     }
   public:
-    BBIndicator(int _period, ENUM_APPLIED_PRICE _appliedPrice, int _timeframe = PERIOD_CURRENT) {
+    BBIndicator(int _period, int _timeframe = PERIOD_CURRENT, ENUM_APPLIED_PRICE _appliedPrice = PRICE_CLOSE) {
       this.period = _period;
       this.deviation = 2.0;
       this.bandsShift = 0;
-      this.appliedPrice = _appliedPrice;
       this.timeframe = _timeframe;
+      this.appliedPrice = _appliedPrice;
     }
 };
 
@@ -555,24 +562,31 @@ class DefaultSignalDetector : public SignalDetector {
 
 class USDJPYSignalDetector : public SignalDetector {
   private:
-    BasicTrendDetector d1Trend;
-    BasicTrendDetector h1Trend;
     BasicTrendDetector cTrend;
+    MACDIndicator macd;
+    RSIIndicator rsi;
   public:
-    USDJPYSignalDetector() : d1Trend(PERIOD_D1), h1Trend(PERIOD_H1), cTrend(PERIOD_CURRENT) {}
+    USDJPYSignalDetector() : cTrend(PERIOD_CURRENT),
+                             macd(MACD_FAST_EMA_PERIOD, MACD_SLOW_EMA_PERIOD, MACD_SIGNAL_PERIOD),
+                             rsi(RSI_PERIOD) {
+    }
 
     void collectData() {
-      d1Trend.collectData();
-      h1Trend.collectData();
       cTrend.collectData();
+      collector.collectData(macd);
+      collector.collectData(rsi);
     }
 
     bool isBuySignal() {
-      return cTrend.isUpTrend();
+      double macdHist = ((MACDIndicatorData*)collector.getData(macd)).macdHistValue;
+      double rsiValue = ((RSIIndicatorData*)collector.getData(rsi)).rsiValue;
+      return cTrend.isUpTrend() && macdHist > 0 && rsiValue > 50 && rsiValue < 70;
     }
 
     bool isSellSignal() {
-      return cTrend.isDownTrend();
+      double macdHist = ((MACDIndicatorData*)collector.getData(macd)).macdHistValue;
+      double rsiValue = ((RSIIndicatorData*)collector.getData(rsi)).rsiValue;
+      return cTrend.isDownTrend() && macdHist < 0 && rsiValue < 50 && rsiValue > 30;
     }
 };
 
@@ -607,19 +621,17 @@ class SmartTrader {
     void execute() {
       detector.collectData();
       if (detector.isBuySignal()) {
-        Print(">>>>> BUY");
-        //if (OrdersTotal() < 3) {
-        //  OrderUtils::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 5));
-        //}
+        if (OrderUtils::countBuyOrders() == 0) {
+          OrderUtils::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 0.2));
+        }
       } else {
         Print(">>>>> NOT BUY");
       }
 
       if (detector.isSellSignal()) {
-        Print(">>>>> SELL");
-        //if (OrdersTotal() < 3) {
-        //  OrderUtils::send(SellOrder(0.1, Bid, Bid + 5, Bid - 5));
-        //}
+        if (OrderUtils::countSellOrders() == 0) {
+          OrderUtils::send(SellOrder(0.1, Bid, Bid + 5, Bid - 0.2));
+        }
       } else {
         Print(">>>>> NOT SELL");
       }
