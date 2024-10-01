@@ -364,7 +364,7 @@ class SellLimitOrder : public Order {
       Order(Symbol(), ORDER_TYPE_SELL_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell Limit " + Symbol(), clrRed) { }
 };
 
-class OrderSender {
+class OrderUtils {
   public:
     static int send(Order& order) {
       int ticket = OrderSend(order.symbol, order.orderType, order.lotSize, order.price, order.slippage, order.stopLoss, order.takeProfit, order.comment, 0, 0, order.lineColor);
@@ -403,21 +403,54 @@ class OrderSender {
        }
        return result;
     }
+
+    static int countTotalOrders() {
+      return OrdersTotal();
+    }
+
+    static int countBuyOrders() {
+      int count = 0;
+      for (int i = 0; i < countTotalOrders(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS)) {
+          if (OrderType() == OP_BUY || OrderType() == OP_BUYLIMIT) ++count;
+        }
+      }
+      return count;
+    }
+
+    static int countSellOrders() {
+      int count = 0;
+      for (int i = 0; i < countTotalOrders(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS)) {
+          if (OrderType() == OP_SELL || OrderType() == OP_SELLLIMIT) ++count;
+        }
+      }
+      return count;
+    }
 };
 
 // ------------------------------------------------------------------
 // TREND DECTECTOR
 
 class TrendDetector {
+  protected:
+    IndicatorDataCollector collector;
+  public:
+    virtual void collectData() = 0;
+    virtual bool isUpTrend() = 0;
+    virtual bool isDownTrend() = 0;
+};
+
+// =====================================
+
+class BasicTrendDetector : public TrendDetector {
   private:
     PriceIndicator price;
     IchimokuIndicator icmk1;
     IchimokuIndicator icmk2;
     SARIndicator sar;
-  protected:
-    IndicatorDataCollector collector;
   public:
-    TrendDetector(int timeframe = PERIOD_CURRENT) :
+    BasicTrendDetector(int timeframe = PERIOD_CURRENT) :
       price(timeframe),
       icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, timeframe),
       icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, timeframe),
@@ -491,23 +524,6 @@ class TrendDetector {
     }
 };
 
-// =====================================
-
-class WeekTrendDetector : public TrendDetector {
-  public:
-    WeekTrendDetector() : TrendDetector(PERIOD_W1) {}
-};
-
-class DayTrendDetector : public TrendDetector {
-  public:
-    DayTrendDetector() : TrendDetector(PERIOD_D1) {}
-};
-
-class HourTrendDetector : public TrendDetector {
-  public:
-    HourTrendDetector() : TrendDetector(PERIOD_H1) {}
-};
-
 // ------------------------------------------------------------------
 // SIGNAL DECTECTOR
 
@@ -539,24 +555,24 @@ class DefaultSignalDetector : public SignalDetector {
 
 class USDJPYSignalDetector : public SignalDetector {
   private:
-    WeekTrendDetector weekTrend;
-    DayTrendDetector dayTrend;
-    HourTrendDetector hourTrend;
-    TrendDetector currentTrend;
+    BasicTrendDetector d1Trend;
+    BasicTrendDetector h1Trend;
+    BasicTrendDetector cTrend;
   public:
+    USDJPYSignalDetector() : d1Trend(PERIOD_D1), h1Trend(PERIOD_H1), cTrend(PERIOD_CURRENT) {}
+
     void collectData() {
-      weekTrend.collectData();
-      dayTrend.collectData();
-      hourTrend.collectData();
-      currentTrend.collectData();
+      d1Trend.collectData();
+      h1Trend.collectData();
+      cTrend.collectData();
     }
 
     bool isBuySignal() {
-      return currentTrend.isUpTrend();
+      return cTrend.isUpTrend();
     }
 
     bool isSellSignal() {
-      return currentTrend.isDownTrend();
+      return cTrend.isDownTrend();
     }
 };
 
@@ -593,7 +609,7 @@ class SmartTrader {
       if (detector.isBuySignal()) {
         Print(">>>>> BUY");
         //if (OrdersTotal() < 3) {
-        //  OrderSender::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 5));
+        //  OrderUtils::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 5));
         //}
       } else {
         Print(">>>>> NOT BUY");
@@ -602,7 +618,7 @@ class SmartTrader {
       if (detector.isSellSignal()) {
         Print(">>>>> SELL");
         //if (OrdersTotal() < 3) {
-        //  OrderSender::send(SellOrder(0.1, Bid, Bid + 5, Bid - 5));
+        //  OrderUtils::send(SellOrder(0.1, Bid, Bid + 5, Bid - 5));
         //}
       } else {
         Print(">>>>> NOT SELL");
