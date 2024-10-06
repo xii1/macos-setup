@@ -9,26 +9,6 @@
 #property strict
 
 // ------------------------------------------------------------------
-// DEFINE CONSTANTS
-
-#define SAR_STEP 0.02
-#define SAR_MAXIMUM 0.2
-
-#define ICHIMOKU1_TENKANSEN_PERIOD 9
-#define ICHIMOKU1_KIJUNSEN_PERIOD 17
-#define ICHIMOKU1_SENKOUSPAN_PERIOD 26
-
-#define ICHIMOKU2_TENKANSEN_PERIOD 65
-#define ICHIMOKU2_KIJUNSEN_PERIOD 129
-#define ICHIMOKU2_SENKOUSPAN_PERIOD 52
-
-#define MACD_FAST_EMA_PERIOD 12
-#define MACD_SLOW_EMA_PERIOD 26
-#define MACD_SIGNAL_PERIOD 9
-
-#define RSI_PERIOD 14
-
-// ------------------------------------------------------------------
 // INDICATOR DATA
 
 interface IIndicatorData { };
@@ -316,6 +296,37 @@ class IndicatorDataCollector {
 };
 
 // ------------------------------------------------------------------
+// DEFINED CONSTANTS
+
+// COMMONS
+#define PIP_TO_POINTS 10 * Point
+#define SLOT_SIZE 0.1
+#define BUY_PRICE Ask
+#define SELL_PRICE Bid
+#define STOP_LOSS_PIPS 5
+#define TAKE_PROFIT_PIPS 10
+// COMMONS
+
+// INDICATOR & SIGNALS
+#define SAR_STEP 0.02
+#define SAR_MAXIMUM 0.2
+
+#define ICHIMOKU1_TENKANSEN_PERIOD 9
+#define ICHIMOKU1_KIJUNSEN_PERIOD 17
+#define ICHIMOKU1_SENKOUSPAN_PERIOD 26
+
+#define ICHIMOKU2_TENKANSEN_PERIOD 65
+#define ICHIMOKU2_KIJUNSEN_PERIOD 129
+#define ICHIMOKU2_SENKOUSPAN_PERIOD 52
+
+#define MACD_FAST_EMA_PERIOD 12
+#define MACD_SLOW_EMA_PERIOD 26
+#define MACD_SIGNAL_PERIOD 9
+
+#define RSI_PERIOD 14
+//INDICATORS & SIGNALS
+
+// ------------------------------------------------------------------
 // ORDER & UTILITIES
 
 class Order {
@@ -342,37 +353,41 @@ class Order {
       this.lineColor = _lineColor;
     }
 
+    Order(Order& order) {
+      this.symbol = order.symbol;
+      this.orderType = order.orderType;
+      this.lotSize = order.lotSize;
+      this.price = order.price;
+      this.slippage = order.slippage;
+      this.stopLoss = order.stopLoss;
+      this.takeProfit = order.takeProfit;
+      this.comment = order.comment;
+      this.lineColor = order.lineColor;
+    }
+
     string info() {
       return comment + " lotSize=" + (string)lotSize + ", price=" + (string)price + ", stopLoss=" + (string)stopLoss + ", takeProfit=" + (string)takeProfit + ".";
     }
 };
 
-class BuyOrder : public Order {
-  public:
-    BuyOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
-      Order(Symbol(), ORDER_TYPE_BUY, _lotSize, _price, 1, _stopLoss, _takeProfit, "Buy " + Symbol(), clrGreen) { }
-};
-
-class SellOrder : public Order {
-  public:
-    SellOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
-      Order(Symbol(), ORDER_TYPE_SELL, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell " + Symbol(), clrRed) { }
-};
-
-class BuyLimitOrder : public Order {
-  public:
-    BuyLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
-      Order(Symbol(), ORDER_TYPE_BUY_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Buy Limit " + Symbol(), clrGreen) { }
-};
-
-class SellLimitOrder : public Order {
-  public:
-    SellLimitOrder(double _lotSize, double _price, double _stopLoss, double _takeProfit) :
-      Order(Symbol(), ORDER_TYPE_SELL_LIMIT, _lotSize, _price, 1, _stopLoss, _takeProfit, "Sell Limit " + Symbol(), clrRed) { }
-};
-
 class OrderUtils {
   public:
+    static Order createBuyOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_BUY, lotSize, price, 1, price - slPips * PIP_TO_POINTS, price + tpPips * PIP_TO_POINTS, "Buy " + Symbol(), clrGreen);
+    }
+
+    static Order createSellOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_SELL, lotSize, price, 1, price + slPips * PIP_TO_POINTS, price - tpPips * PIP_TO_POINTS, "Sell " + Symbol(), clrRed);
+    }
+
+    static Order createBuyLimitOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_BUY_LIMIT, lotSize, price, 1, price - slPips * PIP_TO_POINTS, price + tpPips * PIP_TO_POINTS, "Buy Limit " + Symbol(), clrGreen);
+    }
+
+    static Order createSellLimitOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_SELL_LIMIT, lotSize, price, 1, price + slPips * PIP_TO_POINTS, price - tpPips * PIP_TO_POINTS, "Sell Limit " + Symbol(), clrRed);
+    }
+
     static int send(Order& order) {
       int ticket = OrderSend(order.symbol, order.orderType, order.lotSize, order.price, order.slippage, order.stopLoss, order.takeProfit, order.comment, 0, 0, order.lineColor);
 
@@ -412,14 +427,20 @@ class OrderUtils {
     }
 
     static int countTotalOrders() {
-      return OrdersTotal();
+      int count = 0;
+      for (int i = 0; i < OrdersTotal(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS)) {
+          if (OrderSymbol() == Symbol()) ++count;
+        }
+      }
+      return count;
     }
 
     static int countBuyOrders() {
       int count = 0;
-      for (int i = 0; i < countTotalOrders(); ++i) {
+      for (int i = 0; i < OrdersTotal(); ++i) {
         if (OrderSelect(i, SELECT_BY_POS)) {
-          if (OrderType() == OP_BUY || OrderType() == OP_BUYLIMIT) ++count;
+          if (OrderSymbol() == Symbol() && (OrderType() == OP_BUY || OrderType() == OP_BUYLIMIT)) ++count;
         }
       }
       return count;
@@ -427,12 +448,27 @@ class OrderUtils {
 
     static int countSellOrders() {
       int count = 0;
-      for (int i = 0; i < countTotalOrders(); ++i) {
+      for (int i = 0; i < OrdersTotal(); ++i) {
         if (OrderSelect(i, SELECT_BY_POS)) {
-          if (OrderType() == OP_SELL || OrderType() == OP_SELLLIMIT) ++count;
+          if (OrderSymbol() == Symbol() && (OrderType() == OP_SELL || OrderType() == OP_SELLLIMIT)) ++count;
         }
       }
       return count;
+    }
+};
+
+// ------------------------------------------------------------------
+// ORDER MANAGER
+
+class OrderManager {
+  public:
+    virtual void execute() = 0;
+};
+
+class BasicOrderManager : public OrderManager {
+  public:
+    void execute() {
+      Print(">>>> BasicOrderManager: ", OrderUtils::countTotalOrders());
     }
 };
 
@@ -596,6 +632,7 @@ class USDJPYSignalDetector : public SignalDetector {
 class SmartTrader {
   private:
     SignalDetector* detector;
+    OrderManager* orderManager;
   protected:
     void cleanUp() {
       if (detector != NULL) {
@@ -618,11 +655,17 @@ class SmartTrader {
       }
     }
 
+    void useOrderManager(OrderManager& _orderManager) {
+      orderManager = &_orderManager;
+    }
+
     void execute() {
+      orderManager.execute();
+
       detector.collectData();
       if (detector.isBuySignal()) {
         if (OrderUtils::countBuyOrders() == 0) {
-          OrderUtils::send(BuyOrder(0.1, Ask, Ask - 5, Ask + 0.2));
+          OrderUtils::send(OrderUtils::createBuyOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
         Print(">>>>> NOT BUY");
@@ -630,7 +673,7 @@ class SmartTrader {
 
       if (detector.isSellSignal()) {
         if (OrderUtils::countSellOrders() == 0) {
-          OrderUtils::send(SellOrder(0.1, Bid, Bid + 5, Bid - 0.2));
+          OrderUtils::send(OrderUtils::createSellOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
         Print(">>>>> NOT SELL");
@@ -642,6 +685,7 @@ class SmartTrader {
 // GLOBAL VARIABLES
 
 SmartTrader trader;
+BasicOrderManager orderManager;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -651,6 +695,7 @@ int OnInit() {
 //--- create timer
   EventSetTimer(60);
   trader.useStrategy(Symbol());
+  trader.useOrderManager(orderManager);
   Alert("Smart Trader has started for automatic trading ", Symbol(), " in timeframe ", Period(), " minutes.");
 //---
   return(INIT_SUCCEEDED);
