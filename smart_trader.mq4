@@ -67,7 +67,7 @@ class PriceIndicatorData : public IIndicatorData {
 };
 
 // ------------------------------------------------------------------
-// INDICATOR
+// INDICATORS
 
 class Indicator {
   protected:
@@ -296,18 +296,8 @@ class IndicatorDataCollector {
 };
 
 // ------------------------------------------------------------------
-// DEFINED CONSTANTS
+// INDICATOR SETTINGS
 
-// COMMONS
-#define PIP_TO_POINTS 10 * Point
-#define SLOT_SIZE 0.1
-#define BUY_PRICE Ask
-#define SELL_PRICE Bid
-#define STOP_LOSS_PIPS 5
-#define TAKE_PROFIT_PIPS 10
-// COMMONS
-
-// INDICATOR & SIGNALS
 #define SAR_STEP 0.02
 #define SAR_MAXIMUM 0.2
 
@@ -324,156 +314,9 @@ class IndicatorDataCollector {
 #define MACD_SIGNAL_PERIOD 9
 
 #define RSI_PERIOD 14
-//INDICATORS & SIGNALS
 
 // ------------------------------------------------------------------
-// ORDER & UTILITIES
-
-class Order {
-  public:
-    string symbol;
-    ENUM_ORDER_TYPE orderType;
-    double lotSize;
-    double price;
-    int slippage;
-    double stopLoss;
-    double takeProfit;
-    string comment;
-    color lineColor;
-
-    Order(string _symbol, ENUM_ORDER_TYPE _orderType, double _lotSize, double _price, int _slippage, double _stopLoss, double _takeProfit, string _comment, color _lineColor) {
-      this.symbol = _symbol;
-      this.orderType = _orderType;
-      this.lotSize = _lotSize;
-      this.price = _price;
-      this.slippage = _slippage;
-      this.stopLoss = _stopLoss;
-      this.takeProfit = _takeProfit;
-      this.comment = _comment;
-      this.lineColor = _lineColor;
-    }
-
-    Order(Order& order) {
-      this.symbol = order.symbol;
-      this.orderType = order.orderType;
-      this.lotSize = order.lotSize;
-      this.price = order.price;
-      this.slippage = order.slippage;
-      this.stopLoss = order.stopLoss;
-      this.takeProfit = order.takeProfit;
-      this.comment = order.comment;
-      this.lineColor = order.lineColor;
-    }
-
-    string info() {
-      return comment + " lotSize=" + (string)lotSize + ", price=" + (string)price + ", stopLoss=" + (string)stopLoss + ", takeProfit=" + (string)takeProfit + ".";
-    }
-};
-
-class OrderUtils {
-  public:
-    static Order createBuyOrder(double lotSize, double price, double slPips, double tpPips) {
-      return Order(Symbol(), ORDER_TYPE_BUY, lotSize, price, 1, price - slPips * PIP_TO_POINTS, price + tpPips * PIP_TO_POINTS, "Buy " + Symbol(), clrGreen);
-    }
-
-    static Order createSellOrder(double lotSize, double price, double slPips, double tpPips) {
-      return Order(Symbol(), ORDER_TYPE_SELL, lotSize, price, 1, price + slPips * PIP_TO_POINTS, price - tpPips * PIP_TO_POINTS, "Sell " + Symbol(), clrRed);
-    }
-
-    static Order createBuyLimitOrder(double lotSize, double price, double slPips, double tpPips) {
-      return Order(Symbol(), ORDER_TYPE_BUY_LIMIT, lotSize, price, 1, price - slPips * PIP_TO_POINTS, price + tpPips * PIP_TO_POINTS, "Buy Limit " + Symbol(), clrGreen);
-    }
-
-    static Order createSellLimitOrder(double lotSize, double price, double slPips, double tpPips) {
-      return Order(Symbol(), ORDER_TYPE_SELL_LIMIT, lotSize, price, 1, price + slPips * PIP_TO_POINTS, price - tpPips * PIP_TO_POINTS, "Sell Limit " + Symbol(), clrRed);
-    }
-
-    static int send(Order& order) {
-      int ticket = OrderSend(order.symbol, order.orderType, order.lotSize, order.price, order.slippage, order.stopLoss, order.takeProfit, order.comment, 0, 0, order.lineColor);
-
-      if (ticket < 0) {
-        int errorCode = GetLastError();
-        Alert("OrderSend failed with error code: ", errorCode, ". Order info: ", order.info());
-
-        switch (errorCode) {
-          case 130: Print("Error: Invalid stop levels."); break;
-          case 131: Print("Error: Invalid lot size."); break;
-          case 133: Print("Error: Market is closed."); break;
-          case 134: Print("Error: Not enough money."); break;
-          case 146: Print("Error: Trade context is busy."); break;
-          default: Print("OrderSend failed with an unknown error.");
-        }
-        ResetLastError();
-
-        Print("MODE_LOTSIZE = ", MarketInfo(Symbol(), MODE_LOTSIZE));
-        Print("MODE_MINLOT = ", MarketInfo(Symbol(), MODE_MINLOT));
-        Print("MODE_LOTSTEP = ", MarketInfo(Symbol(), MODE_LOTSTEP));
-        Print("MODE_MAXLOT = ", MarketInfo(Symbol(), MODE_MAXLOT));
-      } else {
-        Alert("OrderSend successful! Ticket number: ", ticket, ". Order info: ", order.info());
-      }
-
-      return ticket;
-    }
-
-    static bool modify(int orderTicket, double orderOpenPrice, double stopLoss, double takeProfit) {
-      bool result = OrderModify(orderTicket, orderOpenPrice, stopLoss, takeProfit, 0, clrBlue);
-      if(!result) {
-        Alert("OrderModify failed with error code: ", GetLastError(), ". Ticket number: ", orderTicket);
-      } else {
-        Alert("OrderModify successful! Ticket number: ", orderTicket);
-       }
-       return result;
-    }
-
-    static int countTotalOrders() {
-      int count = 0;
-      for (int i = 0; i < OrdersTotal(); ++i) {
-        if (OrderSelect(i, SELECT_BY_POS)) {
-          if (OrderSymbol() == Symbol()) ++count;
-        }
-      }
-      return count;
-    }
-
-    static int countBuyOrders() {
-      int count = 0;
-      for (int i = 0; i < OrdersTotal(); ++i) {
-        if (OrderSelect(i, SELECT_BY_POS)) {
-          if (OrderSymbol() == Symbol() && (OrderType() == OP_BUY || OrderType() == OP_BUYLIMIT)) ++count;
-        }
-      }
-      return count;
-    }
-
-    static int countSellOrders() {
-      int count = 0;
-      for (int i = 0; i < OrdersTotal(); ++i) {
-        if (OrderSelect(i, SELECT_BY_POS)) {
-          if (OrderSymbol() == Symbol() && (OrderType() == OP_SELL || OrderType() == OP_SELLLIMIT)) ++count;
-        }
-      }
-      return count;
-    }
-};
-
-// ------------------------------------------------------------------
-// ORDER MANAGER
-
-class OrderManager {
-  public:
-    virtual void execute() = 0;
-};
-
-class BasicOrderManager : public OrderManager {
-  public:
-    void execute() {
-      Print(">>>> BasicOrderManager: ", OrderUtils::countTotalOrders());
-    }
-};
-
-// ------------------------------------------------------------------
-// TREND DECTECTOR
+// TREND DECTECTORS
 
 class TrendDetector {
   protected:
@@ -568,7 +411,7 @@ class BasicTrendDetector : public TrendDetector {
 };
 
 // ------------------------------------------------------------------
-// SIGNAL DECTECTOR
+// SIGNAL DECTECTORS
 
 class SignalDetector {
   protected:
@@ -627,12 +470,206 @@ class USDJPYSignalDetector : public SignalDetector {
 };
 
 // ------------------------------------------------------------------
+// COMMON SETTINGS
+
+#define TO_POINTS(p) (p) * 10 * Point
+#define SLOT_SIZE 0.1
+#define BUY_PRICE Ask
+#define SELL_PRICE Bid
+#define STOP_LOSS_PIPS 20
+#define TAKE_PROFIT_PIPS 100
+#define TRAILING_PIPS 10
+
+// ------------------------------------------------------------------
+// ORDER & UTILITIES
+
+class Order {
+  public:
+    string symbol;
+    ENUM_ORDER_TYPE orderType;
+    double lotSize;
+    double price;
+    int slippage;
+    double stopLoss;
+    double takeProfit;
+    string comment;
+    color lineColor;
+
+    Order(string _symbol, ENUM_ORDER_TYPE _orderType, double _lotSize, double _price, int _slippage, double _stopLoss, double _takeProfit, string _comment, color _lineColor) {
+      this.symbol = _symbol;
+      this.orderType = _orderType;
+      this.lotSize = _lotSize;
+      this.price = _price;
+      this.slippage = _slippage;
+      this.stopLoss = _stopLoss;
+      this.takeProfit = _takeProfit;
+      this.comment = _comment;
+      this.lineColor = _lineColor;
+    }
+
+    Order(Order& order) {
+      this.symbol = order.symbol;
+      this.orderType = order.orderType;
+      this.lotSize = order.lotSize;
+      this.price = order.price;
+      this.slippage = order.slippage;
+      this.stopLoss = order.stopLoss;
+      this.takeProfit = order.takeProfit;
+      this.comment = order.comment;
+      this.lineColor = order.lineColor;
+    }
+
+    string info() {
+      return comment + " lotSize=" + (string)lotSize + ", price=" + (string)price + ", stopLoss=" + (string)stopLoss + ", takeProfit=" + (string)takeProfit + ".";
+    }
+};
+
+class OrderUtils {
+  public:
+    static Order createBuyOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_BUY, lotSize, price, 1, price - TO_POINTS(slPips), price + TO_POINTS(tpPips), "Buy " + Symbol(), clrGreen);
+    }
+
+    static Order createSellOrder(double lotSize, double price, double slPips, double tpPips) {
+      return Order(Symbol(), ORDER_TYPE_SELL, lotSize, price, 1, price + TO_POINTS(slPips), price - TO_POINTS(tpPips), "Sell " + Symbol(), clrRed);
+    }
+
+    static int send(Order& order) {
+      int ticket = OrderSend(order.symbol, order.orderType, order.lotSize, order.price, order.slippage, order.stopLoss, order.takeProfit, order.comment, 0, 0, order.lineColor);
+
+      if (ticket < 0) {
+        int errorCode = GetLastError();
+        Alert("OrderSend failed with error code: ", errorCode, ". Order info: ", order.info());
+
+        switch (errorCode) {
+          case 130: Print("Error: Invalid stop levels."); break;
+          case 131: Print("Error: Invalid lot size."); break;
+          case 133: Print("Error: Market is closed."); break;
+          case 134: Print("Error: Not enough money."); break;
+          case 146: Print("Error: Trade context is busy."); break;
+          default: Print("OrderSend failed with an unknown error.");
+        }
+        ResetLastError();
+
+        Print("MODE_LOTSIZE = ", MarketInfo(Symbol(), MODE_LOTSIZE));
+        Print("MODE_MINLOT = ", MarketInfo(Symbol(), MODE_MINLOT));
+        Print("MODE_LOTSTEP = ", MarketInfo(Symbol(), MODE_LOTSTEP));
+        Print("MODE_MAXLOT = ", MarketInfo(Symbol(), MODE_MAXLOT));
+        Print("MODE_STOPLEVEL = ", MarketInfo(Symbol(), MODE_STOPLEVEL));
+      } else {
+        Alert("OrderSend successful! Ticket number: ", ticket, ". Order info: ", order.info());
+      }
+
+      return ticket;
+    }
+
+    static bool modify(int orderTicket, double orderOpenPrice, double stopLoss, double takeProfit) {
+      bool result = OrderModify(orderTicket, orderOpenPrice, stopLoss, takeProfit, 0, clrBlue);
+      if(!result) {
+        Alert("OrderModify failed with error code: ", GetLastError(), ". Ticket number: ", orderTicket);
+      } else {
+        Alert("OrderModify successful! Ticket number: ", orderTicket);
+      }
+       return result;
+    }
+
+    static int countTotalOrders() {
+      int count = 0;
+      for (int i = 0; i < OrdersTotal(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS) && OrderSymbol() == Symbol()) ++count;
+      }
+      return count;
+    }
+
+    static int countBuyOrders() {
+      int count = 0;
+      for (int i = 0; i < OrdersTotal(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS) && OrderSymbol() == Symbol() && OrderType() == OP_BUY) ++count;
+      }
+      return count;
+    }
+
+    static int countSellOrders() {
+      int count = 0;
+      for (int i = 0; i < OrdersTotal(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS) && OrderSymbol() == Symbol() && OrderType() == OP_SELL) ++count;
+      }
+      return count;
+    }
+};
+
+// ------------------------------------------------------------------
+// RISK MANAGERS
+
+class RiskManager {
+  public:
+    virtual void execute() = 0;
+};
+
+class BasicRiskManager : public RiskManager {
+  public:
+    void execute() {
+      for (int i = 0; i < OrdersTotal(); ++i) {
+        if (OrderSelect(i, SELECT_BY_POS) && OrderSymbol() == Symbol()) {
+          if (OrderType() == OP_BUY) {
+            if (Close[0] - OrderStopLoss() >= TO_POINTS(STOP_LOSS_PIPS + TRAILING_PIPS)) {
+              OrderUtils::modify(OrderTicket(), OrderOpenPrice(), OrderStopLoss() + TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+              Print(">>> Modify buy");
+           }
+          } else if (OrderType() == OP_SELL) {
+            if (OrderStopLoss() - Close[0] >= TO_POINTS(STOP_LOSS_PIPS + TRAILING_PIPS)) {
+              OrderUtils::modify(OrderTicket(), OrderOpenPrice(), OrderStopLoss() - TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+              Print(">>> Modify sell");
+            }
+          }
+        }
+      }
+    }
+};
+
+// ------------------------------------------------------------------
+// VALIDATORS
+
+class Validator {
+  public:
+    virtual bool isAccept() = 0;
+};
+
+class LimitBuyOrderValidator : public Validator {
+  public:
+    bool isAccept() {
+      return (OrderUtils::countBuyOrders() == 0);
+    }
+};
+
+class LimitSellOrderValidator : public Validator {
+  public:
+    bool isAccept() {
+      return (OrderUtils::countSellOrders() == 0);
+    }
+};
+
+class LimitBuyPriceValidator : public Validator {
+  public:
+    bool isAccept() {
+      return (Close[0] <= (MathMax(Close[1], Open[1]) - MathAbs(Close[1] - Open[1]) / 3));
+    }
+};
+
+class LimitSellPriceValidator : public Validator {
+  public:
+    bool isAccept() {
+      return (Close[0] >= (MathMin(Close[1], Open[1]) + MathAbs(Close[1] - Open[1]) / 3));
+    }
+};
+
+// ------------------------------------------------------------------
 // TRADER
 
 class SmartTrader {
   private:
     SignalDetector* detector;
-    OrderManager* orderManager;
+    RiskManager* riskManager;
   protected:
     void cleanUp() {
       if (detector != NULL) {
@@ -645,7 +682,7 @@ class SmartTrader {
       cleanUp();
     }
 
-    void useStrategy(string name) {
+    void useSignalDetector(string name) {
       cleanUp();
 
       if (name == "USDJPY") {
@@ -655,24 +692,30 @@ class SmartTrader {
       }
     }
 
-    void useOrderManager(OrderManager& _orderManager) {
-      orderManager = &_orderManager;
+    void setRiskManager(RiskManager& _riskManager) {
+      riskManager = &_riskManager;
     }
 
     void execute() {
-      orderManager.execute();
+      if (riskManager != NULL) riskManager.execute();
+      if (detector == NULL) return;
 
       detector.collectData();
+
+      LimitBuyOrderValidator bv;
+      LimitBuyPriceValidator bv1;
       if (detector.isBuySignal()) {
-        if (OrderUtils::countBuyOrders() == 0) {
+        if (bv.isAccept() && bv1.isAccept()) {
           OrderUtils::send(OrderUtils::createBuyOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
         Print(">>>>> NOT BUY");
       }
 
+      LimitSellOrderValidator sv;
+      LimitSellPriceValidator sv1;
       if (detector.isSellSignal()) {
-        if (OrderUtils::countSellOrders() == 0) {
+        if (sv.isAccept() && sv1.isAccept()) {
           OrderUtils::send(OrderUtils::createSellOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
@@ -685,7 +728,7 @@ class SmartTrader {
 // GLOBAL VARIABLES
 
 SmartTrader trader;
-BasicOrderManager orderManager;
+BasicRiskManager riskManager;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -694,8 +737,8 @@ BasicOrderManager orderManager;
 int OnInit() {
 //--- create timer
   EventSetTimer(60);
-  trader.useStrategy(Symbol());
-  trader.useOrderManager(orderManager);
+  trader.useSignalDetector(Symbol());
+  trader.setRiskManager(riskManager);
   Alert("Smart Trader has started for automatic trading ", Symbol(), " in timeframe ", Period(), " minutes.");
 //---
   return(INIT_SUCCEEDED);
