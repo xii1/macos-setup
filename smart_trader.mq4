@@ -59,13 +59,6 @@ class SARIndicatorData : public IIndicatorData {
     double sarValue;
 };
 
-class PriceIndicatorData : public IIndicatorData {
-  public:
-    double closeValue;
-    double highValue;
-    double lowValue;
-};
-
 // ------------------------------------------------------------------
 // INDICATORS
 
@@ -265,23 +258,6 @@ class SARIndicator : public Indicator {
     }
 };
 
-class PriceIndicator : public Indicator {
-  private:
-    int timeframe;
-  protected:
-    IIndicatorData* calcValue(int shift) {
-      PriceIndicatorData* d = new PriceIndicatorData();
-      d.closeValue = iClose(NULL, timeframe, shift);
-      d.highValue = iHigh(NULL, timeframe, shift);
-      d.lowValue = iLow(NULL, timeframe, shift);
-      return d;
-    }
-  public:
-    PriceIndicator(int _timeframe = PERIOD_CURRENT) {
-      this.timeframe = _timeframe;
-    }
-};
-
 // ------------------------------------------------------------------
 // DATA COLLECTOR
 
@@ -294,6 +270,17 @@ class IndicatorDataCollector {
       return indicator.getData(shift);
     }
 };
+
+// ------------------------------------------------------------------
+// COMMON SETTINGS
+
+#define TO_POINTS(p) (p) * 10 * Point
+#define SLOT_SIZE 0.1
+#define BUY_PRICE Ask
+#define SELL_PRICE Bid
+#define STOP_LOSS_PIPS 10
+#define TAKE_PROFIT_PIPS 150
+#define TRAILING_PIPS 15
 
 // ------------------------------------------------------------------
 // INDICATOR SETTINGS
@@ -318,95 +305,149 @@ class IndicatorDataCollector {
 // ------------------------------------------------------------------
 // TREND DECTECTORS
 
+enum Trend { UNDETERMINED = -1, DOWN = 0, SIDEWAY = 1, UP = 2 };
+
 class TrendDetector {
   protected:
     IndicatorDataCollector collector;
   public:
-    virtual void collectData() = 0;
-    virtual bool isUpTrend() = 0;
-    virtual bool isDownTrend() = 0;
+    virtual void collectData(int shift = 0) = 0;
+    virtual Trend getTrend(int shift = 0) = 0;
+    virtual double getStrongSupport(int shift = 0) = 0;
+    virtual double getStrongResistance(int shift = 0) = 0;
+    virtual double getWeakSupport(int shift = 0) = 0;
+    virtual double getWeakResistance(int shift = 0) = 0;
 };
 
 // =====================================
 
 class BasicTrendDetector : public TrendDetector {
   private:
-    PriceIndicator price;
     IchimokuIndicator icmk1;
     IchimokuIndicator icmk2;
     SARIndicator sar;
-  public:
-    BasicTrendDetector(int timeframe = PERIOD_CURRENT) :
-      price(timeframe),
-      icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, timeframe),
-      icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, timeframe),
-      sar(SAR_STEP, SAR_MAXIMUM, timeframe) {}
 
-    void collectData() {
-      collector.collectData(price, 2);
-      collector.collectData(icmk1, 2);
-      collector.collectData(icmk2, 2);
-      collector.collectData(sar, 2);
-    }
-
-    bool isUpTrend() {
-      double prevClosePrice = ((PriceIndicatorData*)collector.getData(price, 1)).closeValue;
-      double currentPrice = ((PriceIndicatorData*)collector.getData(price, 0)).closeValue;
-
-      double prevTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).tenkanSen;
-      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).tenkanSen;
-
-      double prevKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).kijunSen;
-      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).kijunSen;
-
-      double prevSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanA;
-      double currentSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanA;
-
-      double prevSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanB;
-      double currentSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanB;
-
-      double prevSAR = ((SARIndicatorData*)collector.getData(sar, 1)).sarValue;
-      double currentSAR = ((SARIndicatorData*)collector.getData(sar, 0)).sarValue;
+    bool isUpTrend(
+      double prevClosePrice, double currentPrice,
+      double prevTenkanSen, double currentTenkanSen,
+      double prevKijunSen, double currentKijunSen,
+      double prevSenkouSpanA, double currentSenkouSpanA,
+      double prevSenkouSpanB, double currentSenkouSpanB,
+      double prevSAR, double currentSAR) {
 
       bool prevClosePriceCondition = (prevClosePrice > prevSAR)
                                      && (prevClosePrice > prevTenkanSen) && (prevClosePrice > prevKijunSen)
                                      && (prevClosePrice > prevSenkouSpanA) && (prevClosePrice > prevSenkouSpanB);
 
-      bool currentPriceCondition = (currentPrice >= currentSAR)
-                                     && (currentPrice >= currentTenkanSen) && (currentPrice >= currentKijunSen)
-                                     && (currentPrice >= currentSenkouSpanA) && (currentPrice >= currentSenkouSpanB);
+      bool currentPriceCondition = (currentPrice > currentSAR)
+                                     && (currentPrice > currentTenkanSen) && (currentPrice > currentKijunSen)
+                                     && (currentPrice > currentSenkouSpanA) && (currentPrice > currentSenkouSpanB);
 
       return prevClosePriceCondition && currentPriceCondition;
     }
 
-    bool isDownTrend() {
-      double prevClosePrice = ((PriceIndicatorData*)collector.getData(price, 1)).closeValue;
-      double currentPrice = ((PriceIndicatorData*)collector.getData(price, 0)).closeValue;
-
-      double prevTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).tenkanSen;
-      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).tenkanSen;
-
-      double prevKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 1)).kijunSen;
-      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, 0)).kijunSen;
-
-      double prevSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanA;
-      double currentSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanA;
-
-      double prevSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 1)).senkouSpanB;
-      double currentSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, 0)).senkouSpanB;
-
-      double prevSAR = ((SARIndicatorData*)collector.getData(sar, 1)).sarValue;
-      double currentSAR = ((SARIndicatorData*)collector.getData(sar, 0)).sarValue;
+    bool isDownTrend(
+      double prevClosePrice, double currentPrice,
+      double prevTenkanSen, double currentTenkanSen,
+      double prevKijunSen, double currentKijunSen,
+      double prevSenkouSpanA, double currentSenkouSpanA,
+      double prevSenkouSpanB, double currentSenkouSpanB,
+      double prevSAR, double currentSAR) {
 
       bool prevClosePriceCondition = (prevClosePrice < prevSAR)
                                      && (prevClosePrice < prevTenkanSen) && (prevClosePrice < prevKijunSen)
                                      && (prevClosePrice < prevSenkouSpanA) && (prevClosePrice < prevSenkouSpanB);
 
-      bool currentPriceCondition = (currentPrice <= currentSAR)
-                                     && (currentPrice <= currentTenkanSen) && (currentPrice <= currentKijunSen)
-                                     && (currentPrice <= currentSenkouSpanA) && (currentPrice <= currentSenkouSpanB);
+      bool currentPriceCondition = (currentPrice < currentSAR)
+                                     && (currentPrice < currentTenkanSen) && (currentPrice < currentKijunSen)
+                                     && (currentPrice < currentSenkouSpanA) && (currentPrice < currentSenkouSpanB);
 
       return prevClosePriceCondition && currentPriceCondition;
+    }
+  public:
+    BasicTrendDetector(int timeframe = PERIOD_CURRENT) :
+      icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, timeframe),
+      icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, timeframe),
+      sar(SAR_STEP, SAR_MAXIMUM, timeframe) {}
+
+    void collectData(int shift = 0) {
+      collector.collectData(icmk1, shift + 2);
+      collector.collectData(icmk2, shift + 2);
+      collector.collectData(sar, shift + 2);
+    }
+
+    Trend getTrend(int shift = 0) {
+      double prevClosePrice = Close[shift + 1];
+      double currentPrice = Close[shift];
+
+      double prevTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift + 1)).tenkanSen;
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
+
+      double prevKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift + 1)).kijunSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).kijunSen;
+
+      double prevSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, shift + 1)).senkouSpanA;
+      double currentSenkouSpanA = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).senkouSpanA;
+
+      double prevSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, shift + 1)).senkouSpanB;
+      double currentSenkouSpanB = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).senkouSpanB;
+
+      double prevSAR = ((SARIndicatorData*)collector.getData(sar, shift + 1)).sarValue;
+      double currentSAR = ((SARIndicatorData*)collector.getData(sar, shift)).sarValue;
+
+      if (isUpTrend(prevClosePrice, currentPrice, prevTenkanSen, currentTenkanSen, prevKijunSen, currentKijunSen,
+                    prevSenkouSpanA, currentSenkouSpanA, prevSenkouSpanB, currentSenkouSpanB, prevSAR, currentSAR)) {
+        return UP;
+      } else if (isDownTrend(prevClosePrice, currentPrice, prevTenkanSen, currentTenkanSen, prevKijunSen, currentKijunSen,
+                           prevSenkouSpanA, currentSenkouSpanA, prevSenkouSpanB, currentSenkouSpanB, prevSAR, currentSAR)) {
+        return DOWN;
+      } else {
+        return SIDEWAY;
+      }
+    }
+
+    double getStrongSupport(int shift = 0) {
+      double currentPrice = Close[shift];
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).kijunSen;
+
+      double min = MathMin(currentTenkanSen, currentKijunSen);
+
+      if (currentPrice >= min) return min;
+      return 0.5 * min;
+    }
+
+    double getStrongResistance(int shift = 0) {
+      double currentPrice = Close[shift];
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).kijunSen;
+
+      double max = MathMax(currentTenkanSen, currentKijunSen);
+
+      if (currentPrice <= max) return max;
+      return 1.5 * max;
+    }
+
+    double getWeakSupport(int shift = 0) {
+      double currentPrice = Close[shift];
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).tenkanSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).kijunSen;
+
+      double min = MathMin(currentTenkanSen, currentKijunSen);
+
+      if (currentPrice >= min) return min;
+      return 0.5 * min;
+    }
+
+    double getWeakResistance(int shift = 0) {
+      double currentPrice = Close[shift];
+      double currentTenkanSen = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).tenkanSen;
+      double currentKijunSen = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).kijunSen;
+
+      double max = MathMax(currentTenkanSen, currentKijunSen);
+
+      if (currentPrice <= max) return max;
+      return 1.5 * max;
     }
 };
 
@@ -441,44 +482,56 @@ class DefaultSignalDetector : public SignalDetector {
 
 class USDJPYSignalDetector : public SignalDetector {
   private:
+    Trend tracking;
     BasicTrendDetector cTrend;
+    BasicTrendDetector h1Trend;
     MACDIndicator macd;
     RSIIndicator rsi;
   public:
-    USDJPYSignalDetector() : cTrend(PERIOD_CURRENT),
+    USDJPYSignalDetector() : tracking(UNDETERMINED), cTrend(PERIOD_CURRENT), h1Trend(PERIOD_H1),
                              macd(MACD_FAST_EMA_PERIOD, MACD_SLOW_EMA_PERIOD, MACD_SIGNAL_PERIOD),
                              rsi(RSI_PERIOD) {
     }
 
     void collectData() {
-      cTrend.collectData();
+      cTrend.collectData(1);
+      h1Trend.collectData(1);
       collector.collectData(macd);
       collector.collectData(rsi);
     }
 
     bool isBuySignal() {
+      if (tracking == UNDETERMINED) {
+        tracking = cTrend.getTrend();
+        return false;
+      }
+
+      Trend current = cTrend.getTrend();
       double macdHist = ((MACDIndicatorData*)collector.getData(macd)).macdHistValue;
       double rsiValue = ((RSIIndicatorData*)collector.getData(rsi)).rsiValue;
-      return cTrend.isUpTrend() && macdHist > 0 && rsiValue > 50 && rsiValue < 70;
+
+      bool condition = (tracking == SIDEWAY) && ((cTrend.getStrongSupport() + TO_POINTS(2) >= Close[0]) || (current == UP && macdHist > 0 && rsiValue > 50 && rsiValue < 70));
+      tracking = current;
+
+      return condition;
     }
 
     bool isSellSignal() {
+      if (tracking == UNDETERMINED) {
+        tracking = cTrend.getTrend();
+        return false;
+      }
+
+      Trend current = cTrend.getTrend();
       double macdHist = ((MACDIndicatorData*)collector.getData(macd)).macdHistValue;
       double rsiValue = ((RSIIndicatorData*)collector.getData(rsi)).rsiValue;
-      return cTrend.isDownTrend() && macdHist < 0 && rsiValue < 50 && rsiValue > 30;
+
+      bool condition = (tracking == SIDEWAY) && ((cTrend.getStrongResistance() - TO_POINTS(2) <= Close[0]) && (current == DOWN && macdHist < 0 && rsiValue < 50 && rsiValue > 30));
+      tracking = current;
+
+      return condition;
     }
 };
-
-// ------------------------------------------------------------------
-// COMMON SETTINGS
-
-#define TO_POINTS(p) (p) * 10 * Point
-#define SLOT_SIZE 0.1
-#define BUY_PRICE Ask
-#define SELL_PRICE Bid
-#define STOP_LOSS_PIPS 20
-#define TAKE_PROFIT_PIPS 100
-#define TRAILING_PIPS 10
 
 // ------------------------------------------------------------------
 // ORDER & UTILITIES
@@ -612,14 +665,28 @@ class BasicRiskManager : public RiskManager {
       for (int i = 0; i < OrdersTotal(); ++i) {
         if (OrderSelect(i, SELECT_BY_POS) && OrderSymbol() == Symbol()) {
           if (OrderType() == OP_BUY) {
-            if (Close[0] - OrderStopLoss() >= TO_POINTS(STOP_LOSS_PIPS + TRAILING_PIPS)) {
-              OrderUtils::modify(OrderTicket(), OrderOpenPrice(), OrderStopLoss() + TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
-              Print(">>> Modify buy");
-           }
+            if (OrderStopLoss() < OrderOpenPrice()) {
+              if (Close[0] - OrderOpenPrice() >= TO_POINTS(1.5 * TRAILING_PIPS)) {
+                OrderUtils::modify(OrderTicket(), OrderOpenPrice(), Close[0] - TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+                Print(">>> Modify buy");
+              }
+            } else {
+              if (Close[0] - OrderStopLoss() >= TO_POINTS(1.5 * TRAILING_PIPS)) {
+                OrderUtils::modify(OrderTicket(), OrderOpenPrice(), Close[0] - TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+                Print(">>> Modify buy");
+              }
+            }
           } else if (OrderType() == OP_SELL) {
-            if (OrderStopLoss() - Close[0] >= TO_POINTS(STOP_LOSS_PIPS + TRAILING_PIPS)) {
-              OrderUtils::modify(OrderTicket(), OrderOpenPrice(), OrderStopLoss() - TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
-              Print(">>> Modify sell");
+            if (OrderStopLoss() > OrderOpenPrice()) {
+              if (OrderOpenPrice() - Close[0] >= TO_POINTS(1.5 * TRAILING_PIPS)) {
+                OrderUtils::modify(OrderTicket(), OrderOpenPrice(), Close[0] + TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+                Print(">>> Modify sell");
+              }
+            } else {
+              if (OrderStopLoss() - Close[0] >= TO_POINTS(1.5 * TRAILING_PIPS)) {
+                OrderUtils::modify(OrderTicket(), OrderOpenPrice(), Close[0] + TO_POINTS(TRAILING_PIPS), OrderTakeProfit());
+                Print(">>> Modify sell");
+              }
             }
           }
         }
@@ -652,14 +719,14 @@ class LimitSellOrderValidator : public Validator {
 class LimitBuyPriceValidator : public Validator {
   public:
     bool isAccept() {
-      return (Close[0] <= (MathMax(Close[1], Open[1]) - MathAbs(Close[1] - Open[1]) / 3));
+      return (Close[0] <= (MathMax(Close[1], Open[1]) - MathAbs(Close[1] - Open[1]) / 2));
     }
 };
 
 class LimitSellPriceValidator : public Validator {
   public:
     bool isAccept() {
-      return (Close[0] >= (MathMin(Close[1], Open[1]) + MathAbs(Close[1] - Open[1]) / 3));
+      return (Close[0] >= (MathMin(Close[1], Open[1]) + MathAbs(Close[1] - Open[1]) / 2));
     }
 };
 
@@ -705,7 +772,8 @@ class SmartTrader {
       LimitBuyOrderValidator bv;
       LimitBuyPriceValidator bv1;
       if (detector.isBuySignal()) {
-        if (bv.isAccept() && bv1.isAccept()) {
+        // if (bv.isAccept() && bv1.isAccept()) {
+        if (bv.isAccept()) {
           OrderUtils::send(OrderUtils::createBuyOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
@@ -715,8 +783,9 @@ class SmartTrader {
       LimitSellOrderValidator sv;
       LimitSellPriceValidator sv1;
       if (detector.isSellSignal()) {
-        if (sv.isAccept() && sv1.isAccept()) {
-          OrderUtils::send(OrderUtils::createSellOrder(SLOT_SIZE, BUY_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
+        // if (sv.isAccept() && sv1.isAccept()) {
+        if (sv.isAccept()) {
+          OrderUtils::send(OrderUtils::createSellOrder(SLOT_SIZE, SELL_PRICE, STOP_LOSS_PIPS, TAKE_PROFIT_PIPS));
         }
       } else {
         Print(">>>>> NOT SELL");
