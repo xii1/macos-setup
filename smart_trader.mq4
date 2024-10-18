@@ -323,8 +323,11 @@ class TrendDetector {
 
 class BasicTrendDetector : public TrendDetector {
   private:
+    int timeframe;
     IchimokuIndicator icmk1;
     IchimokuIndicator icmk2;
+    MAIndicator ema50;
+    MAIndicator ema200;
 
     bool isUpTrend(
       double prevClosePrice, double currentPrice,
@@ -333,15 +336,19 @@ class BasicTrendDetector : public TrendDetector {
       double prevSenkouSpanA, double currentSenkouSpanA,
       double prevSenkouSpanB, double currentSenkouSpanB,
       double prevTenkanSen1, double currentTenkanSen1,
-      double prevKijunSen1, double currentKijunSen1) {
+      double prevKijunSen1, double currentKijunSen1,
+      double prevEMA50, double currentEMA50,
+      double prevEMA200, double currentEMA200) {
 
-      bool prevClosePriceCondition = (prevClosePrice > prevTenkanSen2) && (prevClosePrice > prevKijunSen2)
-                                     && (prevClosePrice > prevSenkouSpanA) && (prevClosePrice > prevSenkouSpanB)
-                                     && (prevClosePrice > prevTenkanSen1) && (prevClosePrice > prevKijunSen1);
+      bool prevClosePriceCondition = (prevClosePrice >= prevTenkanSen2) && (prevClosePrice >= prevKijunSen2)
+                                     && (prevClosePrice >= prevSenkouSpanA) && (prevClosePrice >= prevSenkouSpanB)
+                                     && (prevClosePrice >= prevTenkanSen1) && (prevClosePrice >= prevKijunSen1)
+                                     && (prevClosePrice >= prevEMA200) && (prevEMA50 >= prevEMA200);
 
       bool currentPriceCondition = (currentPrice > currentTenkanSen2) && (currentPrice > currentKijunSen2)
                                      && (currentPrice > currentSenkouSpanA) && (currentPrice > currentSenkouSpanB)
-                                     && (currentPrice > currentTenkanSen1) && (currentPrice > currentKijunSen1);
+                                     && (currentPrice > currentTenkanSen1) && (currentPrice > currentKijunSen1)
+                                     && (currentPrice > currentEMA200) && (currentEMA50 > currentEMA200);
 
       return prevClosePriceCondition && currentPriceCondition;
     }
@@ -353,32 +360,38 @@ class BasicTrendDetector : public TrendDetector {
       double prevSenkouSpanA, double currentSenkouSpanA,
       double prevSenkouSpanB, double currentSenkouSpanB,
       double prevTenkanSen1, double currentTenkanSen1,
-      double prevKijunSen1, double currentKijunSen1) {
+      double prevKijunSen1, double currentKijunSen1,
+      double prevEMA50, double currentEMA50,
+      double prevEMA200, double currentEMA200) {
 
-      bool prevClosePriceCondition = (prevClosePrice < prevTenkanSen2) && (prevClosePrice < prevKijunSen2)
-                                     && (prevClosePrice < prevSenkouSpanA) && (prevClosePrice < prevSenkouSpanB)
-                                     && (prevClosePrice < prevTenkanSen1) && (prevClosePrice < prevKijunSen1);
+      bool prevClosePriceCondition = (prevClosePrice <= prevTenkanSen2) && (prevClosePrice <= prevKijunSen2)
+                                     && (prevClosePrice <= prevSenkouSpanA) && (prevClosePrice <= prevSenkouSpanB)
+                                     && (prevClosePrice <= prevTenkanSen1) && (prevClosePrice <= prevKijunSen1)
+                                     && (prevClosePrice <= prevEMA200) && (prevEMA50 <= prevEMA200);
 
       bool currentPriceCondition = (currentPrice < currentTenkanSen2) && (currentPrice < currentKijunSen2)
                                      && (currentPrice < currentSenkouSpanA) && (currentPrice < currentSenkouSpanB)
-                                     && (currentPrice < currentTenkanSen1) && (currentPrice < currentKijunSen1);
+                                     && (currentPrice < currentTenkanSen1) && (currentPrice < currentKijunSen1)
+                                     && (currentPrice < currentEMA200) && (currentEMA50 < currentEMA200);
 
       return prevClosePriceCondition && currentPriceCondition;
     }
   public:
-    BasicTrendDetector(int timeframe = PERIOD_CURRENT) :
-      icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, timeframe),
-      icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, timeframe)
-      {}
+    BasicTrendDetector(int _timeframe = PERIOD_CURRENT) : timeframe(_timeframe),
+      icmk1(ICHIMOKU1_TENKANSEN_PERIOD, ICHIMOKU1_KIJUNSEN_PERIOD, ICHIMOKU1_SENKOUSPAN_PERIOD, _timeframe),
+      icmk2(ICHIMOKU2_TENKANSEN_PERIOD, ICHIMOKU2_KIJUNSEN_PERIOD, ICHIMOKU2_SENKOUSPAN_PERIOD, _timeframe),
+      ema50(50, MODE_EMA, _timeframe), ema200(200, MODE_EMA, _timeframe) {}
 
     void collectData(int shift = 0) {
-      collector.collectData(icmk1, shift + 2);
-      collector.collectData(icmk2, shift + 2);
+      collector.collectData(icmk1, shift + 1);
+      collector.collectData(icmk2, shift + 1);
+      collector.collectData(ema50, shift + 1);
+      collector.collectData(ema200, shift + 1);
     }
 
     Trend getTrend(int shift = 0) {
-      double prevClosePrice = Close[shift + 1];
-      double currentPrice = Close[shift];
+      double prevClosePrice = iClose(NULL, timeframe, shift + 1);
+      double currentPrice = iClose(NULL, timeframe, shift);
 
       double prevTenkanSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift + 1)).tenkanSen;
       double currentTenkanSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
@@ -398,13 +411,21 @@ class BasicTrendDetector : public TrendDetector {
       double prevKijunSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift + 1)).kijunSen;
       double currentKijunSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).kijunSen;
 
+      double prevEMA50 = ((MAIndicatorData*)collector.getData(ema50, shift + 1)).maValue;
+      double currentEMA50 = ((MAIndicatorData*)collector.getData(ema50, shift)).maValue;
+
+      double prevEMA200 = ((MAIndicatorData*)collector.getData(ema200, shift + 1)).maValue;
+      double currentEMA200 = ((MAIndicatorData*)collector.getData(ema200, shift)).maValue;
+
       if (isUpTrend(prevClosePrice, currentPrice, prevTenkanSen2, currentTenkanSen2, prevKijunSen2, currentKijunSen2,
                     prevSenkouSpanA, currentSenkouSpanA, prevSenkouSpanB, currentSenkouSpanB,
-                    prevTenkanSen1, currentTenkanSen1, prevKijunSen1, currentKijunSen1)) {
+                    prevTenkanSen1, currentTenkanSen1, prevKijunSen1, currentKijunSen1,
+                    prevEMA50, currentEMA50, prevEMA200, currentEMA200)) {
         return UP;
       } else if (isDownTrend(prevClosePrice, currentPrice, prevTenkanSen2, currentTenkanSen2, prevKijunSen2, currentKijunSen2,
                            prevSenkouSpanA, currentSenkouSpanA, prevSenkouSpanB, currentSenkouSpanB,
-                           prevTenkanSen1, currentTenkanSen1, prevKijunSen1, currentKijunSen1)) {
+                           prevTenkanSen1, currentTenkanSen1, prevKijunSen1, currentKijunSen1,
+                           prevEMA50, currentEMA50, prevEMA200, currentEMA200)) {
         return DOWN;
       } else {
         return SIDEWAY;
@@ -412,47 +433,47 @@ class BasicTrendDetector : public TrendDetector {
     }
 
     double getStrongSupport(int shift = 0) {
-      double currentPrice = Close[shift];
+      double currentPrice = iClose(NULL, timeframe, shift);
       double currentTenkanSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
       double currentKijunSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).kijunSen;
 
       double min = MathMin(currentTenkanSen2, currentKijunSen2);
 
       if (currentPrice >= min) return min;
-      return 0.5 * min;
+      else return -1;
     }
 
     double getStrongResistance(int shift = 0) {
-      double currentPrice = Close[shift];
+      double currentPrice = iClose(NULL, timeframe, shift);
       double currentTenkanSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).tenkanSen;
       double currentKijunSen2 = ((IchimokuIndicatorData*)collector.getData(icmk2, shift)).kijunSen;
 
       double max = MathMax(currentTenkanSen2, currentKijunSen2);
 
       if (currentPrice <= max) return max;
-      return 1.5 * max;
+      else return -1;
     }
 
     double getWeakSupport(int shift = 0) {
-      double currentPrice = Close[shift];
+      double currentPrice = iClose(NULL, timeframe, shift);
       double currentTenkanSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).tenkanSen;
       double currentKijunSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).kijunSen;
 
       double min = MathMin(currentTenkanSen1, currentKijunSen1);
 
       if (currentPrice >= min) return min;
-      return 0.5 * min;
+      else return -1;
     }
 
     double getWeakResistance(int shift = 0) {
-      double currentPrice = Close[shift];
+      double currentPrice = iClose(NULL, timeframe, shift);
       double currentTenkanSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).tenkanSen;
       double currentKijunSen1 = ((IchimokuIndicatorData*)collector.getData(icmk1, shift)).kijunSen;
 
       double max = MathMax(currentTenkanSen1, currentKijunSen1);
 
       if (currentPrice <= max) return max;
-      return 1.5 * max;
+      else return -1;
     }
 };
 
@@ -474,17 +495,26 @@ class DefaultSignalDetector : public SignalDetector {
   private:
     BasicTrendDetector cTrend;
     BasicTrendDetector h1Trend;
+    BasicTrendDetector d1Trend;
+    BasicTrendDetector w1Trend;
   public:
-    DefaultSignalDetector() : cTrend(PERIOD_CURRENT), h1Trend(PERIOD_H1) {}
+    DefaultSignalDetector() : cTrend(PERIOD_CURRENT), h1Trend(PERIOD_H1), d1Trend(PERIOD_D1), w1Trend(PERIOD_W1) {}
 
     void collectData() {
       cTrend.collectData(1);
       h1Trend.collectData(1);
+      d1Trend.collectData(1);
+      w1Trend.collectData(1);
 
-      Print(">>>>> Before: ", cTrend.getTrend(1), "|", cTrend.getStrongSupport(1), "|", cTrend.getStrongResistance(1), "|", cTrend.getWeakSupport(1), "|", cTrend.getWeakResistance(1));
-      Print(">>>>> Current: ", cTrend.getTrend(), "|", cTrend.getStrongSupport(), "|", cTrend.getStrongResistance(), "|", cTrend.getWeakSupport(), "|", cTrend.getWeakResistance());
-      Print(">>>>> Before H1: ", h1Trend.getTrend(1), "|", h1Trend.getStrongSupport(1), "|", h1Trend.getStrongResistance(1), "|", h1Trend.getWeakSupport(1), "|", h1Trend.getWeakResistance(1));
-      Print(">>>>> Current H1: ", h1Trend.getTrend(), "|", h1Trend.getStrongSupport(), "|", h1Trend.getStrongResistance(), "|", h1Trend.getWeakSupport(), "|", h1Trend.getWeakResistance());
+      Print(">>>>> Before: ", cTrend.getTrend(1), " | ", cTrend.getStrongSupport(1), " | ", cTrend.getStrongResistance(1), " | ", cTrend.getWeakSupport(1), " | ", cTrend.getWeakResistance(1));
+      Print(">>>>> Current: ", cTrend.getTrend(), " | ", cTrend.getStrongSupport(), " | ", cTrend.getStrongResistance(), " | ", cTrend.getWeakSupport(), " | ", cTrend.getWeakResistance());
+      Print(">>>>> Before H1: ", h1Trend.getTrend(1), " | ", h1Trend.getStrongSupport(1), " | ", h1Trend.getStrongResistance(1), " | ", h1Trend.getWeakSupport(1), " | ", h1Trend.getWeakResistance(1));
+      Print(">>>>> Current H1: ", h1Trend.getTrend(), " | ", h1Trend.getStrongSupport(), " | ", h1Trend.getStrongResistance(), " | ", h1Trend.getWeakSupport(), " | ", h1Trend.getWeakResistance());
+      Print(">>>>> Before D1: ", d1Trend.getTrend(1), " | ", d1Trend.getStrongSupport(1), " | ", d1Trend.getStrongResistance(1), " | ", d1Trend.getWeakSupport(1), " | ", d1Trend.getWeakResistance(1));
+      Print(">>>>> Current D1: ", d1Trend.getTrend(), " | ", d1Trend.getStrongSupport(), " | ", d1Trend.getStrongResistance(), " | ", d1Trend.getWeakSupport(), " | ", d1Trend.getWeakResistance());
+      Print(">>>>> Before W1: ", w1Trend.getTrend(1), " | ", w1Trend.getStrongSupport(1), " | ", w1Trend.getStrongResistance(1), " | ", w1Trend.getWeakSupport(1), " | ", w1Trend.getWeakResistance(1));
+      Print(">>>>> Current W1: ", w1Trend.getTrend(), " | ", w1Trend.getStrongSupport(), " | ", w1Trend.getStrongResistance(), " | ", w1Trend.getWeakSupport(), " | ", w1Trend.getWeakResistance());
+
     }
 
     bool isBuySignal() {
