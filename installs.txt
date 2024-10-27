@@ -75,6 +75,7 @@ pip install cmus-osx
 cmus-osx install
 brew install --cask notunes
 brew install yt-dlp
+brew install mpv
 
 brew install tmux
 brew install sl
