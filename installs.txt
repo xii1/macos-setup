@@ -70,6 +70,7 @@ brew tap teamookla/speedtest
 brew update
 brew install speedtest
 
+brew install --cask iterm2
 brew install cmus
 pip install cmus-osx
 cmus-osx install
