@@ -64,7 +64,8 @@ brew install --cask atom
 brew install --cask termius
 brew install --cask vlc
 brew install --cask iglance
-brew install vim tree curl wget htop telnet jq ffmpeg
+brew install vim nvim tree curl wget htop telnet jq ffmpeg
+/usr/bin/python3 -m pip install --user pynvim
 
 brew tap teamookla/speedtest
 brew update

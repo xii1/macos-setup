@@ -436,6 +436,7 @@ set -g @dracula-border-contrast true
 set -g @dracula-show-flags true
 # available plugins: battery, cpu-usage, git, gpu-usage, ram-usage, tmux-ram-usage, network, network-bandwidth, network-ping, attached-clients, network-vpn, weather, time, spotify-tui, kubernetes-context, synchronize-panes
 set -g @dracula-plugins "battery cpu-usage ram-usage network-bandwidth time weather"
+#set -g @dracula-plugins "battery cpu-usage ram-usage network-bandwidth time"
 set -g @dracula-show-battery-status true
 set -g @dracula-battery-label false
 set -g @dracula-network-bandwidth en0
@@ -459,8 +460,8 @@ set -g @continuum-save-interval '1'
 set -g @continuum-restore 'on'
 set -g @continuum-boot 'on'
 
-set -g @plugin 'tmux-plugins/tmux-sidebar'
-set -g @sidebar-tree-command 'tree -aC --dirsfirst -L 1'
+set -g @treemux-tree-nvim-init-file '~/.tmux/plugins/treemux/configs/treemux_init.lua'
+set -g @plugin 'kiyoon/treemux'
 
 
 # -- custom variables ----------------------------------------------------------
