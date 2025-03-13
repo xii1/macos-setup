@@ -32,7 +32,7 @@ brew install k9s
 brew install k3sup
 
 # https://github.com/graalvm/homebrew-tap
-brew install --cask graalvm/tap/graalvm-community-jdk21
+brew install --cask graalvm/tap/graalvm-community-jdk22
 
 # OpenJDK
 brew install --cask temurin
