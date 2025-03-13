@@ -376,14 +376,18 @@ set-option -g prefix `
 bind-key ` send-prefix
 
 # split panes using 'h' and 'v'
-bind h split-window -h
-bind v split-window -v
+bind-key h split-window -h
+bind-key v split-window -v
 unbind '"'
 unbind %
 
-# Shift arrow to switch windows
-bind -n S-Left  previous-window
-bind -n S-Right next-window
+# switch windows using Shift arrow
+bind-key -n S-Left  previous-window
+bind-key -n S-Right next-window
+
+# kill pane and kill window without confirmation
+bind-key x kill-pane
+bind-key k kill-window
 
 # if you don't want Oh my tmux! to alter a binding, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important
@@ -447,7 +451,8 @@ set -g @dracula-show-fahrenheit false
 set -g @dracula-show-location true
 # available colors: white, gray, dark_gray, light_purple, dark_purple, cyan, green, orange, red, pink, yellow
 # set -g @dracula-[plugin-name]-colors "[background] [foreground]"
-set -g @dracula-network-bandwidth-colors "green dark_gray"
+set -g @dracula-ram-usage-colors "yellow dark_gray"
+set -g @dracula-network-bandwidth-colors "cyan dark_gray"
 set -g @dracula-weather-colors "white dark_purple"
 
 #set -g @plugin 'tmux-plugins/tmux-copycat'
