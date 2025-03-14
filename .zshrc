@@ -5,7 +5,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-alias ls='ls -Glh'
+alias ls='ls -aG'
+alias ls='ls -aGlh'
 
 #export JAVA_HOME=$(/usr/libexec/java_home -v22)
 source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
