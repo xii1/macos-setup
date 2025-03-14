@@ -9,6 +9,7 @@ alias ls='ls -aG'
 alias ll='ls -aGlh'
 
 #export JAVA_HOME=$(/usr/libexec/java_home -v22)
+
 source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
