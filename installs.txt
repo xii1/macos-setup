@@ -84,7 +84,7 @@ brew install sl
 brew install cmatrix
 brew install asciiquarium
 
-brew tap homebrew/cask-fonts && brew install --cask font-meslo-lg-nerd-font
+brew tap homebrew/cask-fonts && brew install --cask font-jetbrains-mono-nerd-font
 brew install romkatv/powerlevel10k/powerlevel10k
-echo "source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme" >> ~/.zshrc
 brew install zsh-syntax-highlighting
+brew install zsh-autosuggestions
