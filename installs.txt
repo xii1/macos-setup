@@ -6,9 +6,9 @@
 - Postman
 - Chrome
 - Brave Browser
-- Atom
 - iTerm2
 - IntelliJ
+- VSCode
 - Termius
 
 #################### Dev Tools ###################
