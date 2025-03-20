@@ -66,27 +66,37 @@ brew install --cask metasploit
 
 # terminal
 brew install --cask iterm2
-brew install tmux
 brew tap homebrew/cask-fonts && brew install --cask font-jetbrains-mono-nerd-font
 
 brew install romkatv/powerlevel10k/powerlevel10k
 brew install zsh-syntax-highlighting
 brew install zsh-autosuggestions
 
+# tmux (optional)
+brew install tmux
+
 === iTerm2 settings ===
 # Set zsh as Login shell
-# Set tmux in Send text at start
 # Set JetBrainsMono Nerd Font Mono - Regular - 12 as font
 # Add Dracula.itermcolor file to Color Presets and set it as the theme
+# Set tmux in Send text at start (if using tmux)
 
-=== zsh, tmux, powerlevel10k settings ===
-# Copy .zshrc, .tmux.conf, .tmux.conf.local, .p10k.zsh files to home directory
+=== zsh settings ===
+# Add content .zshrc file to ~/.zshrc in home directory
+
+=== powerlevel10k settings ===
+# Copy .p10k.zsh file to home directory (or re-config p10k using: p10k configure)
+
+=== tmux settings ===
+# Copy .tmux.conf, .tmux.conf.local files to home directory
+# Usage: prefix_key + function_key
+# - prefix_key: `
+# - function_key: c (new window), v (new vertical pane), h (new horizontal pane), k (kill window), x (kill pane), r (reload tmux config), tab (dir tree)...
 
 brew install vim nvim curl wget htop telnet jq ffmpeg
 /usr/bin/python3 -m pip install --user pynvim
 
 # tools
-brew install --cask atom
 brew install --cask termius
 brew install --cask vlc
 brew install --cask iglance
