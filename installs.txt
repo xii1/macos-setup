@@ -91,7 +91,8 @@ brew install tmux
 # Copy .tmux.conf, .tmux.conf.local files to home directory
 # Usage: prefix_key + function_key
 # - prefix_key: `
-# - function_key: c (new window), v (new vertical pane), h (new horizontal pane), k (kill window), x (kill pane), r (reload tmux config), tab (dir tree)...
+# - function_key: c (new window), v (new vertical pane), h (new horizontal pane), k (kill window), x (kill pane), r (reload tmux config), arrow (switch pane), tab (dir tree)...
+# - Do not use with prefix_key: Shift + Left, Shift + Right (switch window)
 
 brew install vim nvim curl wget htop telnet jq ffmpeg
 /usr/bin/python3 -m pip install --user pynvim
