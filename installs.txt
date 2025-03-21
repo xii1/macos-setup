@@ -77,7 +77,7 @@ brew install tmux
 
 === iTerm2 settings ===
 # Set zsh as Login shell
-# Set JetBrainsMono Nerd Font Mono - Regular - 12 as font
+# Set JetBrainsMono Nerd Font - Regular - 12 as font
 # Add Dracula.itermcolor file to Color Presets and set it as the theme
 # Set tmux in Send text at start (if using tmux)
 
