@@ -10,9 +10,19 @@ alias ll='ls -aGlh'
 
 #export JAVA_HOME=$(/usr/libexec/java_home -v22)
 
-source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if type brew &>/dev/null; then
+  FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
+
+  autoload -Uz compinit
+  compinit -u
+
+  zstyle ':completion:*' rehash true
+  zstyle ':completion:*' menu select
+
+  source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+  source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
 (( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[path]=none
