@@ -14,7 +14,10 @@
 #################### Dev Tools ###################
 
 # dev
-brew install git gh
+brew install git gh git-delta
+git config --global core.pager delta
+git config --global delta.side-by-side false
+git config --global delta.line-numbers true
 
 # https://github.com/graalvm/homebrew-tap
 brew install --cask graalvm/tap/graalvm-community-jdk22
@@ -72,6 +75,7 @@ brew install romkatv/powerlevel10k/powerlevel10k
 brew install zsh-syntax-highlighting
 brew install zsh-autosuggestions
 brew install zsh-completions
+brew install fzf
 
 # tmux (optional)
 brew install tmux
