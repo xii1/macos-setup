@@ -12,15 +12,6 @@ alias ll='ls -aGlh'
 
 source <(fzf --zsh)
 
-if type brew &>/dev/null; then
-  FPATH="$(brew --prefix)/share/zsh-completions:$FPATH"
-fi
-
-autoload -Uz compinit && compinit -u
-
-zstyle ':completion:*' rehash true
-zstyle ':completion:*' menu select
-
 source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
