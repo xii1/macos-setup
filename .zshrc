@@ -13,12 +13,12 @@ alias ll='ls -aGlh'
 source <(fzf --zsh)
 
 source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-(( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_STYLES[path]=none
-ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+(( ${+FAST_HIGHLIGHT_STYLES} )) || typeset -A FAST_HIGHLIGHT_STYLES
+FAST_HIGHLIGHT_STYLES[path]="fg=magenta"
+FAST_HIGHLIGHT_STYLES[path-to-dir]="fg=magenta"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
