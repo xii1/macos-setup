@@ -100,7 +100,7 @@ brew install tmux
 #                             Option + Left, Option + Right, Option + Up, Option + Down (switch panes)
 
 brew install vim nvim curl wget htop telnet jq ffmpeg
-/usr/bin/python3 -m pip install --user pynvim
+python3 -m pip install --user pynvim --break-system-packages
 
 # tools
 brew install --cask termius
@@ -110,8 +110,6 @@ brew install yt-dlp
 brew install mpv
 
 brew install cmus
-pip install cmus-osx
-cmus-osx install
 brew install --cask notunes
 
 brew tap teamookla/speedtest
