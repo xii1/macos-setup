@@ -111,6 +111,8 @@ brew install mpv
 
 brew install cmus
 brew install --cask notunes
+/usr/bin/python3 -m pip install cmus-osx
+cmus-osx install
 
 brew tap teamookla/speedtest
 brew install speedtest
