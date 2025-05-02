@@ -6,10 +6,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -80,
-        0
+        -600,
+        140
       ],
-      "id": "d0e77533-148d-452b-99bb-8a4545b98e1b",
+      "id": "4f06ea32-9024-495d-bd39-dd9948c23a9b",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -21,10 +21,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        1420,
-        -20
+        900,
+        120
       ],
-      "id": "fd1d0fe5-05d5-47b3-adbd-dc75b2f5c38c",
+      "id": "a13a85ea-2753-460c-a3d3-84012cb430f4",
       "name": "Read/Write Files from Disk"
     },
     {
@@ -39,10 +39,10 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        820,
-        -140
+        300,
+        0
       ],
-      "id": "d88030b7-b9cd-4eb5-a5ac-f27b9da0dfc1",
+      "id": "b73d55ce-f8cd-42d9-9caa-427d0ec435fd",
       "name": "Convert to File"
     },
     {
@@ -62,10 +62,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        220,
-        0
+        -300,
+        140
       ],
-      "id": "9c61894a-a678-433a-83d6-13167f13c21c",
+      "id": "facf19cf-b605-4e55-96bb-df26fd9d4729",
       "name": "setOutputDirectory"
     },
     {
@@ -77,10 +77,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        1120,
-        -20
+        600,
+        120
       ],
-      "id": "cd59f407-fa59-4112-b49c-18c1a6ebce6d",
+      "id": "0dc9545d-f02f-4120-af4e-96cc6a054c50",
       "name": "Merge"
     },
     {
@@ -91,10 +91,10 @@
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        520,
-        -140
+        0,
+        0
       ],
-      "id": "85a3e434-64a9-4491-aaa0-be1b015c3e6a",
+      "id": "458d1ef6-4f54-41d4-8803-d73bdff8383d",
       "name": "getAllWorkflows",
       "credentials": {
         "n8nApi": {
@@ -171,11 +171,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8f820f1e-9d5a-406c-9a3e-2fb505c4210a",
+  "versionId": "81b3c0f3-84b4-4ab7-b950-347d4e214175",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "f8b130448b1247cfa7a04d0efa3978094ff6ffdc49aa0211b08d8d57e7730660"
   },
-  "id": "ilUYCHJsuW6yz3R9",
+  "id": "dixI0YQI2k8GmFGw",
   "tags": []
 }
