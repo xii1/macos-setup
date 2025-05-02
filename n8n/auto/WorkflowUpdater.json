@@ -1,0 +1,296 @@
+{
+  "name": "WorkflowUpdater",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "f339b1bf-d953-4de6-a4da-f9747725565c",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.main.input }}/*.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "id": "eeb713a2-48bb-47c0-9a7a-244ff0d43f1f",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {
+          "keepSource": "binary"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        820,
+        0
+      ],
+      "id": "f7cbaf84-4aba-4f5a-bf3d-72cf49b00b6a",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3f98084-8c4c-457a-b7ae-85c64496a0c2",
+              "name": "main.input",
+              "value": "/Users/xiii/Downloads/macos-setup/n8n/workflows",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "460d6817-f291-4c9e-a327-144ad1870201",
+      "name": "setInputDir"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ca921bb-a2e0-42ea-a7a9-a9d0f872bc69",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "The resource you are requesting could not be found",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1720,
+        -20
+      ],
+      "id": "4f86e384-6198-4c9a-9988-78a5531b6e14",
+      "name": "isNotExists"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "workflowId": {
+          "__rl": true,
+          "value": "={{ $json.data.id }}",
+          "mode": "id"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -140
+      ],
+      "id": "75dff36f-b5af-4d9c-9ad3-560ed20556c4",
+      "name": "getWorkflow",
+      "alwaysOutputData": false,
+      "credentials": {
+        "n8nApi": {
+          "id": "XipRu9kvpKPwvvNa",
+          "name": "cloud n8n account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "workflowObject": "={{ $json.data.toJsonString() }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        -140
+      ],
+      "id": "9d76611a-6ad1-43b5-a223-9fd03e568ca3",
+      "name": "createWorkflow",
+      "credentials": {
+        "n8nApi": {
+          "id": "XipRu9kvpKPwvvNa",
+          "name": "cloud n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "workflowId": {
+          "__rl": true,
+          "value": "={{ $json.data.id }}",
+          "mode": "id"
+        },
+        "workflowObject": "={{ $json.data.toJsonString() }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        100
+      ],
+      "id": "6c8a89b6-7201-4fb7-9e8e-3a06dd055d03",
+      "name": "updateWorkflow",
+      "credentials": {
+        "n8nApi": {
+          "id": "XipRu9kvpKPwvvNa",
+          "name": "cloud n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1420,
+        -20
+      ],
+      "id": "da6b7fc1-4994-4f6c-91c6-6efed96ceddc",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "setInputDir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "getWorkflow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "setInputDir": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isNotExists": {
+      "main": [
+        [
+          {
+            "node": "createWorkflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "updateWorkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getWorkflow": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "isNotExists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c7c5cceb-a5ca-4d1a-aecb-6fc671c3b1a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8b130448b1247cfa7a04d0efa3978094ff6ffdc49aa0211b08d8d57e7730660"
+  },
+  "id": "ztxjfIhfuW7Tr51N",
+  "tags": []
+}

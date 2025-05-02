@@ -1,0 +1,178 @@
+{
+  "createdAt": "2025-05-04T16:57:14.126Z",
+  "id": "BpWT3GHR7aaqatKz",
+  "name": "ImageOutputSender",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5178b3b9-58ad-4be8-9b1d-c0c57cc82d39",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $json.main.app.channelId }}",
+          "threadTs": "={{ $json.main.app.eventTime }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        600,
+        -140
+      ],
+      "id": "971ebd2e-1d7c-4a0f-8278-31db7fabe13d",
+      "name": "Slack",
+      "webhookId": "097c8273-77d8-41ce-a252-a6596a553545",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $json.main.app.chatId }}",
+        "binaryData": true,
+        "additionalFields": {
+          "reply_to_message_id": "={{ $json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        140
+      ],
+      "id": "b3ca85d2-269e-49a7-b561-7bbb01334e98",
+      "name": "Telegram",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3c7ec2f1-85d4-4e3b-a9b6-a02f90e69d17"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc174a1e-744c-4559-bf90-724656571726",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        300,
+        0
+      ],
+      "id": "8212fecc-c54e-40f0-a9a9-9d665fc61cc0",
+      "name": "appRule"
+    }
+  ],
+  "connections": {
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

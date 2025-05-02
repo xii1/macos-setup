@@ -1,0 +1,260 @@
+{
+  "createdAt": "2025-05-04T16:57:14.122Z",
+  "id": "zKM7SQoO5mMXanCB",
+  "name": "GeneralTaskProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "f30b42fd-c8bf-4495-8ca9-4599172658e3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.main.data.message.text || $json.main.output.text }}",
+        "options": {
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        240,
+        140
+      ],
+      "id": "c698dca6-2da2-4450-8df3-685aed501fb1",
+      "name": "General AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        700,
+        20
+      ],
+      "id": "f29b089e-6a4e-4e7b-a9cc-01bd5c86bd3d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a83c526-b60e-4aab-9a93-1e517a2b29e5",
+              "name": "main.output.text",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        20
+      ],
+      "id": "1fbd11db-83c9-47a7-a84c-d6f832f6e3a2",
+      "name": "normalizeOutput"
+    },
+    {
+      "parameters": {
+        "name": "RealTimeSearching",
+        "description": "={{ $json.main.vars.realTimeSearching.description }}",
+        "workflowId": {
+          "__rl": true,
+          "value": "P1leuBKmSP4aiMPN",
+          "mode": "list",
+          "cachedResultName": "RealTimeSearchingProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "main": "={{ $json.main }}",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "main"
+          ],
+          "schema": [
+            {
+              "id": "main",
+              "displayName": "main",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        340
+      ],
+      "id": "0329c948-dd22-4a8f-b0d5-1ccfef762145",
+      "name": "RealTime Searching"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.main.app.sessionId }}",
+        "sessionTTL": "={{ $json.main.vars.caching.session.ttlInDays * 24 * 3600 }}",
+        "contextWindowLength": "={{ $json.main.vars.caching.session.contextLength }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        280,
+        340
+      ],
+      "id": "87000334-606b-45f9-be5d-878c38eef1ac",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "J8VDBDm0YDijlL9C",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "=models/{{ $json.main.vars.ai.google.generalModel }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        100,
+        340
+      ],
+      "id": "b9b28d00-0e9b-44d3-8231-26b4ed316538",
+      "name": "Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uyOs56MFdKYyE9ZM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "General AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "General AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalizeOutput": {
+      "main": [
+        []
+      ]
+    },
+    "RealTime Searching": {
+      "ai_tool": [
+        [
+          {
+            "node": "General AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "General AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "General AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

@@ -1,0 +1,158 @@
+{
+  "createdAt": "2025-05-04T16:57:14.046Z",
+  "id": "fwBlY5a3ZQCbGo7z",
+  "name": "ImageClassifier",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "534459b7-32cd-4df2-8d0e-c1f0c8692ab8",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.main.vars.imageClassifier.prompt }}",
+        "options": {
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        260,
+        120
+      ],
+      "id": "8ff92d75-0797-4934-a423-69f7656957ca",
+      "name": "Image Classifiying Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ce10c407-c05d-4039-a1dc-f6b3f3656904",
+              "name": "=main.data.image.category",
+              "value": "={{ $json.output.trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "except",
+        "excludeFields": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1020,
+        20
+      ],
+      "id": "b60d5c40-5f2a-4043-a5df-adffebc26a20",
+      "name": "normalizeOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        720,
+        20
+      ],
+      "id": "e050c825-d05a-4ed9-a8ad-718daa5ea985",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "modelName": "=models/{{ $json.main.vars.ai.google.generalModel }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        140,
+        320
+      ],
+      "id": "07d0707c-b3ee-48bb-b2de-3cfafef2275f",
+      "name": "Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uyOs56MFdKYyE9ZM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Image Classifiying Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Classifiying Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Classifiying Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

@@ -1,0 +1,771 @@
+{
+  "createdAt": "2025-05-04T16:57:14.183Z",
+  "id": "02CuOzdxpvEmK2QV",
+  "name": "InvoiceTaskProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "e94ba584-63ca-4651-9648-490df5daed09",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        680,
+        20
+      ],
+      "id": "d2937787-72d2-4e39-b45d-bfb15a2b7ecd",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "message": "=🧾\n{{ $json.output }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        -160
+      ],
+      "id": "bc94c90b-6cef-4abc-8ce9-bd60ff01abb5",
+      "name": "Slack",
+      "webhookId": "082c403b-ef34-4f72-910e-a36661a4ab2f",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0c3b6de7-33d3-4996-bafc-7c5a9c18ff0e",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        -160
+      ],
+      "id": "f89d9249-a537-41f0-9368-214a164f1224",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Merge').item.json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "text": "✅ *Done*",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Merge').item.json.main.app.eventTime }}",
+              "reply_broadcast": true
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2780,
+        -240
+      ],
+      "id": "a06ca67f-6bc1-4d98-8e78-e852a4b20712",
+      "name": "Slack1",
+      "webhookId": "082c403b-ef34-4f72-910e-a36661a4ab2f",
+      "executeOnce": true,
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Merge').item.json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "text": "⛔ *Cancelled*",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Merge').item.json.main.app.eventTime }}",
+              "reply_broadcast": true
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1880,
+        -80
+      ],
+      "id": "612b1b46-d5f1-4d14-b97b-817cccabb0c0",
+      "name": "Slack2",
+      "webhookId": "082c403b-ef34-4f72-910e-a36661a4ab2f",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0c3b6de7-33d3-4996-bafc-7c5a9c18ff0e",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        200
+      ],
+      "id": "a6dba4df-bfb5-4547-a3f7-2fcfe640abce",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Merge').item.json.main.app.chatId }}",
+        "text": "=✅ *Done*",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "MarkdownV2",
+          "reply_to_message_id": "={{ $('Merge').item.json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1880,
+        120
+      ],
+      "id": "fb2c0eed-a246-4c27-8d28-75b756d3f3c7",
+      "name": "Telegram1",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.main.app.chatId }}",
+        "message": "=🧾\n{{ $json.output }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        200
+      ],
+      "id": "d551fe53-a2e4-4c3a-bf69-8a44a1218d77",
+      "name": "Telegram",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Merge').item.json.main.app.chatId }}",
+        "text": "=⛔ *Cancelled*",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "MarkdownV2",
+          "reply_to_message_id": "={{ $('Merge').item.json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1880,
+        280
+      ],
+      "id": "45c306e2-ea61-468b-b6ea-ee9f8122b0ad",
+      "name": "Telegram2",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b7478633-c5b5-4c01-b0e4-9e3e13dcf1a0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e3919d96-7a1a-46bd-a742-1bb8253a5657",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        980,
+        20
+      ],
+      "id": "384d2da5-6ece-43c3-a5ed-a6402882a26c",
+      "name": "appRule"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.all().map(item => {\n  const payments = [];\n\n  $('Merge').first().json.output\n    .split('\\n')\n    .filter(line => line.trim() !== '' && line.includes('--'))\n    .map(line => {\n      const parts = line.split('--').map(part => part.trim());\n      const [total, store, date] = parts;\n      \n      const dt = DateTime.fromFormat(date, 'MM/dd/yyyy HH:mm');\n      const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n      \n      return {\n          sheet: sheet,\n          spend: total,\n          note: store,\n          date: date,\n      };\n    })\n    .forEach(p => payments.push(p));\n\n  return {\n    json: {\n      ...item.json,\n      output: payments,\n    }\n  }\n});\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        -240
+      ],
+      "id": "a8724dd8-78d1-4e3f-a599-86a24dc3d91e",
+      "name": "parsePaymentInfo",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2180,
+        -240
+      ],
+      "id": "9ab9d23a-791f-4e28-9efa-6f91788129de",
+      "name": "splitPayment"
+    },
+    {
+      "parameters": {
+        "modelName": "=models/{{ $json.main.vars.ai.google.generalModel }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        340
+      ],
+      "id": "e15b2ef0-714d-4dad-bdec-5fa8ddcb3d02",
+      "name": "Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uyOs56MFdKYyE9ZM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.main.vars.invoice.extractor.prompt }}",
+        "options": {
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        140
+      ],
+      "id": "4235bc09-c152-4189-adad-ecc7aab9d7da",
+      "name": "Invoice Extractor Agent"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Merge').item.json.main.vars.invoice.customSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.output.sheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.output.date }}",
+            "Payer": "={{ $('Merge').item.json.main.vars.invoice.payerName }}",
+            "Spend": "={{ $json.output.spend }}",
+            "Note": "={{ $json.output.note }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Home",
+              "displayName": "Home",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Insurance + Internet + Gym",
+              "displayName": "Insurance + Internet + Gym",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Electric + Utilities",
+              "displayName": "Electric + Utilities",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Total cost",
+              "displayName": "Total cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Total spend",
+              "displayName": "Total spend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Debt",
+              "displayName": "Debt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payer",
+              "displayName": "Payer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Spend",
+              "displayName": "Spend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Note",
+              "displayName": "Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 14,
+              "firstDataRow": 15
+            }
+          },
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2480,
+        -240
+      ],
+      "id": "cdc4a72d-c19b-4873-ac38-ccc18b0c11e9",
+      "name": "updateToCustomSheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QPWCBEBd1gVee3YC",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Invoice Extractor Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "parsePaymentInfo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parsePaymentInfo": {
+      "main": [
+        [
+          {
+            "node": "splitPayment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splitPayment": {
+      "main": [
+        [
+          {
+            "node": "updateToCustomSheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Invoice Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "updateToCustomSheet": {
+      "main": [
+        [
+          {
+            "node": "Slack1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

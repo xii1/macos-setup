@@ -1,0 +1,181 @@
+{
+  "name": "WorkflowExporter",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "d0e77533-148d-452b-99bb-8a4545b98e1b",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.main.output }}/{{ $binary.data.fileName }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        -20
+      ],
+      "id": "fd1d0fe5-05d5-47b3-adbd-dc75b2f5c38c",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "options": {
+          "format": true,
+          "fileName": "={{ $json.name }}.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        -140
+      ],
+      "id": "d88030b7-b9cd-4eb5-a5ac-f27b9da0dfc1",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8afdbfa0-93b7-4ac4-bdf3-2561cf3cf459",
+              "name": "main.output",
+              "value": "/Users/xiii/Downloads/macos-setup/n8n/workflows",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "9c61894a-a678-433a-83d6-13167f13c21c",
+      "name": "setOutputDirectory"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        -20
+      ],
+      "id": "cd59f407-fa59-4112-b49c-18c1a6ebce6d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -140
+      ],
+      "id": "85a3e434-64a9-4491-aaa0-be1b015c3e6a",
+      "name": "getAllWorkflows",
+      "credentials": {
+        "n8nApi": {
+          "id": "XipRu9kvpKPwvvNa",
+          "name": "cloud n8n account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "setOutputDirectory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setOutputDirectory": {
+      "main": [
+        [
+          {
+            "node": "getAllWorkflows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getAllWorkflows": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8f820f1e-9d5a-406c-9a3e-2fb505c4210a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8b130448b1247cfa7a04d0efa3978094ff6ffdc49aa0211b08d8d57e7730660"
+  },
+  "id": "ilUYCHJsuW6yz3R9",
+  "tags": []
+}

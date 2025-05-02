@@ -1,0 +1,190 @@
+{
+  "createdAt": "2025-05-04T16:57:14.131Z",
+  "id": "guwskv0PlKX32N3a",
+  "name": "TextOutputSender",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fb4c6524-a6b6-4d65-8528-7c132f20364c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "text": "=✅ {{\n  $json.main.output.text\n    .replace(/(\\n|\\ )\\*\\ +/g, '$1- ')\n    .replace(/\\*\\*/g, '*')\n}}",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.main.app.eventTime }}",
+              "reply_broadcast": true
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        600,
+        -140
+      ],
+      "id": "5eb3b395-cf7d-4a9e-b4ae-48a824b3d6ac",
+      "name": "Slack",
+      "webhookId": "16b4c76e-40d0-4dc2-b9de-87a0b901cad8",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.main.app.chatId }}",
+        "text": "=✅ {{ \n  $json.main.output.text\n    .replace(/(\\n|\\ )\\*\\ +/g, '$1- ')\n    .replace(/\\*\\*/g, '*')\n    .replace(/([_\\[\\]()~>#+\\-=|{}.!\\\\])/g, '\\\\$1')\n}}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "MarkdownV2",
+          "reply_to_message_id": "={{ $json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        140
+      ],
+      "id": "6e9819e3-5848-40e4-9320-7f0fe4934ff3",
+      "name": "Telegram",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3c7ec2f1-85d4-4e3b-a9b6-a02f90e69d17"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc174a1e-744c-4559-bf90-724656571726",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        300,
+        0
+      ],
+      "id": "2a785df3-5e3b-42cd-a2e9-7cbe48dd86da",
+      "name": "appRule"
+    }
+  ],
+  "connections": {
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

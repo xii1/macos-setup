@@ -1,0 +1,333 @@
+{
+  "createdAt": "2025-05-04T16:57:14.116Z",
+  "id": "NYXw4vVYM8NacXWO",
+  "name": "VideoTaskProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1060,
+        220
+      ],
+      "id": "0abd4243-17a4-4ad4-beff-efcf60578196",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        100
+      ],
+      "id": "6927bec2-0906-4183-9f7a-22743239bbe0",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.generalModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"file_uri\": \"{{ $json.main.data.message.youtube_url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "93fa3b3f-fe32-4f46-941f-fef42b848495",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "385bb6f6-9bf5-4aff-b1ab-90e95fe5a614",
+              "name": "main.data.message.youtube_url",
+              "value": "={{ $json.main.data.message.text.match(/(https?:\\/\\/(?:www\\.)?(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/)[\\w-]+)/i)[0] || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -760,
+        220
+      ],
+      "id": "76da891b-af3a-4f74-8cef-c97fd64e9e98",
+      "name": "getYoutubeUrl"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e3b55c6f-fca3-4ba3-9ffc-3a9795ce8d47",
+              "leftValue": "={{ $json.main.data.message.youtube_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -460,
+        220
+      ],
+      "id": "a4814fdd-f10a-46e6-942d-be300136dcde",
+      "name": "hasYoutubeUrl"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a83c526-b60e-4aab-9a93-1e517a2b29e5",
+              "name": "main.output.text",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        820,
+        220
+      ],
+      "id": "eb165fd2-e3a2-4769-96ee-5cf7f58cfe07",
+      "name": "normalizeOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "DGDaDGwRyzLlSyLb",
+          "mode": "list",
+          "cachedResultName": "FileUploader"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        440
+      ],
+      "id": "9a4d6f1c-7e8a-4416-9712-ba07078d097a",
+      "name": "execFileUploader"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.generalModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": {{ $json.main.data.uploaded_file.mimeType }},\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        140,
+        440
+      ],
+      "id": "2decc655-a87c-487f-9d5a-c19e5ce4e507",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        340
+      ],
+      "id": "99bad546-9684-47a7-afe2-a7bc59caa19d",
+      "name": "Merge1"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "getYoutubeUrl",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getYoutubeUrl": {
+      "main": [
+        [
+          {
+            "node": "hasYoutubeUrl",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hasYoutubeUrl": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "execFileUploader",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execFileUploader": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

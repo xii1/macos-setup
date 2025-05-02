@@ -1,0 +1,310 @@
+{
+  "createdAt": "2025-05-04T16:57:14.104Z",
+  "id": "QOvl9aBFU2SuruWw",
+  "name": "FileProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        0
+      ],
+      "id": "1355b03a-2195-455e-b743-ca3b9262c791",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "111c43d4-e976-48e3-b0c2-aedc97682ec6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1cb91bea-f97a-49ee-8150-1d09daa00bfa",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        320,
+        0
+      ],
+      "id": "d413c073-b604-4135-bec5-b61fd1d8d810",
+      "name": "appRule"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1220,
+        -100
+      ],
+      "id": "9803ea0d-a3ff-4f01-a7f8-e93b9891be64",
+      "name": "normalizeOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.main.data.image.id || $json.main.data.audio.id || $json.main.data.video.id || $json.main.data.document.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        620,
+        -200
+      ],
+      "id": "5a6c9d80-6925-4bd8-96db-06cfb5f0996f",
+      "name": "getSlackFile",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        920,
+        100
+      ],
+      "id": "40155a1f-14b2-4382-b578-f48fa15dd836",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  var type = '';\n  var extension = item.binary.data.fileExtension.toLowerCase();\n  \n  if (item.json.main.data.image.id !== '') {\n    type = 'image';\n  } else if (item.json.main.data.audio.id !== '') {\n    type = 'audio';\n  } else if (item.json.main.data.video.id !== '') {\n    type = 'video';\n  } else {\n    type = 'application';\n  }\n  \n  if (extension.endsWith('jpg')) {\n    item.binary.data.mimeType = 'image/jpeg';\n  } else {\n    item.binary.data.mimeType = type + '/' + extension;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        100
+      ],
+      "id": "9f170b8e-f87a-4c85-b366-48cdd742f391",
+      "name": "rewriteMimeType"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "include": "except",
+        "excludeFields": "ok,result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        100
+      ],
+      "id": "d42d13bc-989b-46dd-acfd-1a54b1b3bb81",
+      "name": "normalizeOutput1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.main.data.image.id || $json.main.data.audio.id || $json.main.data.video.id || $json.main.data.document.id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        620,
+        240
+      ],
+      "id": "e1fdc39c-e17a-45ff-be31-74d9ab362810",
+      "name": "getTelegramFile",
+      "webhookId": "278de63d-41ee-4e98-91ac-a96a8c55d97d",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        920,
+        -100
+      ],
+      "id": "088bcab9-1270-4eba-ad0f-eeb5bdc42aa8",
+      "name": "Merge1"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "getSlackFile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "getTelegramFile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getSlackFile": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "rewriteMimeType",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rewriteMimeType": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getTelegramFile": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

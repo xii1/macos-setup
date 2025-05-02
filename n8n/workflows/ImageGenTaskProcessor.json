@@ -1,0 +1,271 @@
+{
+  "createdAt": "2025-05-04T16:57:14.079Z",
+  "id": "vwJlHYXWy77RqDns",
+  "name": "ImageGenTaskProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -940,
+        -120
+      ],
+      "id": "c1d2fafa-3575-4d96-9b95-e100a7f6687b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.imageGenModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"inline_data\": {\n            \"mime_type\": \"{{ $binary.data.mimeType }}\",\n            \"data\": \"{{ $json.data }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"responseModalities\": [\n      \"TEXT\",\n      \"IMAGE\"\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        20
+      ],
+      "id": "8187d90b-8436-4286-a143-85beeb8832db",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        -100
+      ],
+      "id": "90469949-9dc5-45dd-94c0-cb40c1c1329e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {
+          "encoding": "base64",
+          "keepSource": "both"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        20
+      ],
+      "id": "d75ae0a8-1a21-425b-92a6-e2af913213b0",
+      "name": "extractBinaryToBase64"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.all().map(item => {\n  const mimeType = (item.json.candidates[0].content.parts[0].inlineData && item.json.candidates[0].content.parts[0].inlineData.mimeType) || item.json.candidates[0].content.parts[1].inlineData.mimeType;\n  const fileName = 'image_gen.' + mimeType.replace('image/', '');\n  const data = (item.json.candidates[0].content.parts[0].inlineData && item.json.candidates[0].content.parts[0].inlineData.data) || item.json.candidates[0].content.parts[1].inlineData.data;\n  \n  return {\n    json: {\n      ...item.json,\n    },\n    binary: {\n      data: {\n        mimeType: mimeType,\n        fileName: fileName,\n        data: data,\n      }\n    }\n  };\n});\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        140
+      ],
+      "id": "6022fccd-4865-4ee6-8c92-476df6219ea6",
+      "name": "extractBase64ToBinary"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "865adca5-7873-4ee4-a188-a3360d2ab395",
+              "leftValue": "={{ $json.main.data.image.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        140
+      ],
+      "id": "0470cf89-9b17-4d4a-9311-dd3cae77cf62",
+      "name": "hasImage"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.imageGenModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"responseModalities\": [\n      \"TEXT\",\n      \"IMAGE\"\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -200,
+        260
+      ],
+      "id": "c31a01a4-8011-428d-a87a-e7b73373d01f",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        860,
+        -100
+      ],
+      "id": "a1b50a59-ad33-4c0d-9e03-000a43df9c17",
+      "name": "normalizeOutput"
+    }
+  ],
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "extractBase64ToBinary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "hasImage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extractBinaryToBase64": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extractBase64ToBinary": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "hasImage": {
+      "main": [
+        [
+          {
+            "node": "extractBinaryToBase64",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "extractBase64ToBinary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

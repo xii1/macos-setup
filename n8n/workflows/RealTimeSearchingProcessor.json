@@ -1,0 +1,84 @@
+{
+  "createdAt": "2025-05-04T16:57:14.107Z",
+  "id": "xZUaFhOIxaeaoppX",
+  "name": "RealTimeSearchingProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.generalModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"{{ $json.query }}\"\n        }\n      ]\n    }\n  ],\n  \"tools\": [\n    {\n      \"google_search\": {}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        -20
+      ],
+      "id": "0a1dfb6a-ca22-4f5a-a7da-35c3d0a5228a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "main",
+              "type": "object"
+            },
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        -20
+      ],
+      "id": "912dbeda-b798-4772-8f5b-b093d7ba84c5",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}

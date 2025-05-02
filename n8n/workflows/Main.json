@@ -1,0 +1,1593 @@
+{
+  "createdAt": "2025-05-04T16:57:14.194Z",
+  "id": "qZIqw6lVGzghJOzU",
+  "name": "Main",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6a539d02-9d89-4807-9bf2-4b507a0a35e8",
+              "leftValue": "={{ $json.main.data.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "950ab57f-cd01-43d9-8af4-84888b710a04",
+              "leftValue": "={{ $json.main.data.image.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "53a4b42d-c596-4c70-a00b-7584b2824659",
+              "leftValue": "={{ $json.main.data.audio.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f68c0589-e764-43fa-879a-2d445b8b3275",
+              "leftValue": "={{ $json.main.data.video.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7225eb50-70a7-48fd-b739-485aa5aab60f",
+              "leftValue": "={{ $json.main.data.document.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -460,
+        1180
+      ],
+      "id": "56c1fc4f-1aac-4e4d-9344-f004ab52b4f0",
+      "name": "hasData"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        920
+      ],
+      "id": "8a703157-0207-4fd8-a2cc-33144c935b1a",
+      "name": "Slack Trigger",
+      "webhookId": "e46f4300-9188-4fbe-a7c0-ae088fb645c1",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "userIds": "<TBD>"
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1440,
+        1440
+      ],
+      "id": "5a397500-1d51-4fe5-ac89-209e04aa0144",
+      "name": "Telegram Trigger",
+      "webhookId": "a59684e2-65bd-4048-b76f-093a1971516d",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ebbe3bd4-6cad-49c0-b544-60dda6c1c14d",
+              "name": "main.data.message.text",
+              "value": "={{ $json.message.text || $json.message.caption || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "210c0276-3ce9-4db5-9bc8-6da82ae79f30",
+              "name": "main.data.image.id",
+              "value": "={{ $json.message.photo && $json.message.photo.at(-1).file_id || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "14cbafb0-b192-443e-b2d7-51429038ec81",
+              "name": "main.data.audio.id",
+              "value": "={{ $json.message.voice && $json.message.voice.file_id || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "35aa75fa-a216-4c57-b5f6-c3db0a803a15",
+              "name": "main.data.video.id",
+              "value": "={{ $json.message.video && $json.message.video.file_id || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "7c3d738e-cb46-4f14-a0b8-c3df7e3c5ea3",
+              "name": "main.data.document.id",
+              "value": "={{ $json.message.document && $json.message.document.file_id || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "514f5b4e-37e6-45a4-9f5d-db8965a7c02d",
+              "name": "main.app.type",
+              "value": "telegram",
+              "type": "string"
+            },
+            {
+              "id": "9045ad95-9bfa-4357-af97-c09f6843312e",
+              "name": "main.app.chatId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "2b48f9da-df51-4c62-b288-50387f9d1e68",
+              "name": "main.app.messageId",
+              "value": "={{ $json.message.message_id }}",
+              "type": "string"
+            },
+            {
+              "id": "418f4d21-6359-48f4-856f-251654f5f370",
+              "name": "main.app.sessionId",
+              "value": "=telegram_{{ $json.message.chat.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1140,
+        1440
+      ],
+      "id": "cb2b8a99-a651-461d-a7bc-8e30cb90e1ee",
+      "name": "normalizeTelegramData"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ebbe3bd4-6cad-49c0-b544-60dda6c1c14d",
+              "name": "main.data.message.text",
+              "value": "={{ $json.text.replace(/^<@\\w+>/, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "210c0276-3ce9-4db5-9bc8-6da82ae79f30",
+              "name": "main.data.image.id",
+              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('image') && $json.files[0].url_private_download || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a889fab8-c450-436b-951e-639cb60f902f",
+              "name": "main.data.audio.id",
+              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('audio') && $json.files[0].url_private_download || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "c03bdf4f-2fd0-458a-b241-d0a6bdda956e",
+              "name": "main.data.video.id",
+              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('video') && $json.files[0].url_private_download || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "f5297ee1-b31d-48e9-9661-cdd9e9ed0c56",
+              "name": "main.data.document.id",
+              "value": "={{ $json.files && $json.files[0].url_private_download || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "514f5b4e-37e6-45a4-9f5d-db8965a7c02d",
+              "name": "main.app.type",
+              "value": "slack",
+              "type": "string"
+            },
+            {
+              "id": "9045ad95-9bfa-4357-af97-c09f6843312e",
+              "name": "main.app.channelId",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "31560e38-0a7a-4b7c-820c-424cbcf19736",
+              "name": "main.app.eventTime",
+              "value": "={{ $json.event_ts }}",
+              "type": "string"
+            },
+            {
+              "id": "aa1ca29a-5eb8-414b-9c37-61546fed07ab",
+              "name": "main.app.sessionId",
+              "value": "=slack_{{ $json.channel }}_{{ $json.user }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1140,
+        920
+      ],
+      "id": "b68b8fb2-9bb0-44d5-a417-c797e058f308",
+      "name": "normalizeSlackData"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "71d1d78d-5750-4aab-b7c7-10c27dc86468",
+              "leftValue": "={{ $json.main.data.image.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9ffbc875-ce1c-4340-8a15-3486162c34a0",
+              "leftValue": "={{ $json.main.data.audio.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b54e5eb8-02be-4bbb-9d3c-b94ec2aa5a88",
+              "leftValue": "={{ $json.main.data.video.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "93f45a78-fe13-4ce1-aaf4-1cfe545f01b1",
+              "leftValue": "={{ $json.main.data.document.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        1160
+      ],
+      "id": "211095d0-8c4f-494d-bf11-327e493f4ec3",
+      "name": "hasFile"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "64ad04b4-fb38-4c8e-a046-78e00d5e8657",
+                    "leftValue": "={{ $json.main.data.audio.id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.data.image.id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "a52b4d20-b9ab-4ec8-b790-02410eab546f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1320,
+        1460
+      ],
+      "id": "acf03920-f9f5-46d2-ae1d-097baab8d1a8",
+      "name": "fileTypeRule"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.data.image.category }}",
+                    "rightValue": "invoice",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "fbe3c23d-9d51-48a1-a95d-65e1bcb29b84"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "invoice"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1920,
+        1600
+      ],
+      "id": "5343093e-7180-4b16-bf79-4c47355f64d5",
+      "name": "imageCategoryRule"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "274efe30-d0ad-48d0-80da-abff1fa011ad",
+              "leftValue": "={{ $json.main.data.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        1180
+      ],
+      "id": "5a05921c-c6f5-4ddc-ae65-ca2f7965d59a",
+      "name": "hasMessage"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "QOvl9aBFU2SuruWw",
+          "mode": "list",
+          "cachedResultName": "FileProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        1000
+      ],
+      "id": "014c97a5-eac7-4680-b697-0c9d755cfbcf",
+      "name": "execFileProcessor"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fwBlY5a3ZQCbGo7z",
+          "mode": "list",
+          "cachedResultName": "ImageClassifier"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1620,
+        1600
+      ],
+      "id": "bffda710-8d13-454b-8643-21bc6fb37ac7",
+      "name": "execImageClassifier"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.main.data.message.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "image",
+              "description": "={{ $json.main.vars.messageClassifier.description.image }}"
+            },
+            {
+              "category": "audio",
+              "description": "={{ $json.main.vars.messageClassifier.description.audio }}"
+            },
+            {
+              "category": "video",
+              "description": "={{ $json.main.vars.messageClassifier.description.video }}"
+            },
+            {
+              "category": "general",
+              "description": "={{ $json.main.vars.messageClassifier.description.general }}"
+            }
+          ]
+        },
+        "options": {
+          "enableAutoFixing": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        880
+      ],
+      "id": "b3fbb6da-86cc-4b20-b045-bf0aa517d88c",
+      "name": "Message Classifier"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "zKM7SQoO5mMXanCB",
+          "mode": "list",
+          "cachedResultName": "GeneralTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2220,
+        1100
+      ],
+      "id": "2b580e71-64a8-4b3a-8500-2e2e7f475977",
+      "name": "execGeneralTask"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "02CuOzdxpvEmK2QV",
+          "mode": "list",
+          "cachedResultName": "InvoiceTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2220,
+        1600
+      ],
+      "id": "c69a1cd5-7586-4bc0-9ea3-9d78c79580ca",
+      "name": "execInvoiceTask"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "vwJlHYXWy77RqDns",
+          "mode": "list",
+          "cachedResultName": "ImageGenTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2220,
+        500
+      ],
+      "id": "655cbf6d-f7ea-4719-a38c-647daab0f222",
+      "name": "execImageGenTask"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cA7Fyt1gU2U8jt7i",
+          "mode": "list",
+          "cachedResultName": "AudioTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2220,
+        700
+      ],
+      "id": "65af597c-5120-41cd-880e-c68861ef3857",
+      "name": "execAudioTask"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "NYXw4vVYM8NacXWO",
+          "mode": "list",
+          "cachedResultName": "VideoTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2220,
+        900
+      ],
+      "id": "602b4ce9-6f2c-4249-a5ac-164888e94ccc",
+      "name": "execVideoTask"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "bpexG2HibxA8SYjJ",
+          "mode": "list",
+          "cachedResultName": "MessageReactionSender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        1000
+      ],
+      "id": "5c7e72b4-58e8-4a49-94b4-2821e4788ff3",
+      "name": "execMessageReactionSender"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        440
+      ],
+      "id": "da8ead9b-df6b-4d35-a37d-e55eac22f377",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "={{ $json.execution.id }}",
+        "options": {
+          "activeWorkflows": true
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        300
+      ],
+      "id": "497eedf6-fee0-416c-be2c-3d237c94ad73",
+      "name": "n8n",
+      "credentials": {
+        "n8nApi": {
+          "id": "qfFeXO7X0Jet8m89",
+          "name": "local n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -480,
+        420
+      ],
+      "id": "d4583166-dfbb-498d-a7a2-3dcc41715fe4",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.main.app.chatId }}",
+        "text": "=❌ {{ $json.main.error.message }}\n_Error in this_ [n8n execution]({{ $json.main.error.url }})",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        560
+      ],
+      "id": "1e367133-0f72-44a3-8821-e2b4496be5a9",
+      "name": "Telegram",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5efa0fd1-bd48-4036-af9f-3331e4476ee6",
+              "name": "main.error.message",
+              "value": "={{ $json.execution.error.message }}\n{{ $json.execution.error.description }}",
+              "type": "string"
+            },
+            {
+              "id": "132d6480-9673-4055-b90f-81b683dab5f9",
+              "name": "main.error.url",
+              "value": "={{ $json.execution.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -960,
+        440
+      ],
+      "id": "9a7e5323-0b0d-4fd8-9b59-26565f7b9dc5",
+      "name": "setErrorMessage"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d38bed2-c0fd-4ad1-af66-648b14d93d62",
+              "name": "main.app",
+              "value": "={{ $json.data.executionData.nodeExecutionStack[0].data.main[0][0].json.main.app }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -780,
+        300
+      ],
+      "id": "c9ad9063-5065-4b19-b406-32c25bfaa47b",
+      "name": "getAppInfo"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "text": "=❌ {{ $json.main.error.message }}\n_Error in this <{{ $json.main.error.url }}|n8n execution>_",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.main.app.eventTime }}",
+              "reply_broadcast": true
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        120,
+        280
+      ],
+      "id": "828978df-3455-4a7c-ab96-0ca6c96f8cca",
+      "name": "Slack",
+      "webhookId": "16b4c76e-40d0-4dc2-b9de-87a0b901cad8",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "98fc8a35-0e2e-4324-9494-a8aaa5d5f773"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d04c2579-5488-4f01-b2ae-0b5b303e819b",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -180,
+        420
+      ],
+      "id": "324b5d7d-f1f0-4c87-b9fb-0d6e1b6c4b8f",
+      "name": "appRule"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a7d9a90c-252e-40a6-b6fc-ef9e8e5cf8f9",
+              "name": "main.vars.invoice.customSheetId",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "7507872f-9b80-4515-847e-39c24a9c5515",
+              "name": "main.vars.invoice.extractor.prompt",
+              "value": "Extract information from the invoice image and format the output as <total/amount due with tip included> -- <store name> -- <billing date converted to MM/dd/yyyy HH:mm format>",
+              "type": "string"
+            },
+            {
+              "id": "8a6abdcc-772a-4103-8920-169136772001",
+              "name": "main.vars.invoice.payerName",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "32454082-1f42-46ab-9e4c-bc0ffe6ed65f",
+              "name": "main.vars.ai.google.apiKey",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "7ed3e8af-5089-4b00-9e9b-bfb8298a22cf",
+              "name": "main.vars.ai.google.imageGenModel",
+              "value": "gemini-2.0-flash-exp-image-generation",
+              "type": "string"
+            },
+            {
+              "id": "3d46cce3-56cf-430e-9978-746a1790c252",
+              "name": "main.vars.ai.google.generalModel",
+              "value": "gemini-2.5-flash-preview-04-17",
+              "type": "string"
+            },
+            {
+              "id": "81e01515-b4ae-4af0-a190-700548c2777e",
+              "name": "main.vars.ai.google.baseUrl",
+              "value": "https://generativelanguage.googleapis.com/v1beta/models",
+              "type": "string"
+            },
+            {
+              "id": "ed46fc78-be32-4979-a30e-7507fe28884d",
+              "name": "main.vars.ai.google.uploadUrl",
+              "value": "https://generativelanguage.googleapis.com/upload/v1beta/files",
+              "type": "string"
+            },
+            {
+              "id": "44472703-f13e-4997-942f-e1feda5ed69f",
+              "name": "main.vars.messageClassifier.description.image",
+              "value": "prompts that generate, edit, transform, or modify an image in any way, excluding requests to analyze or describe the image",
+              "type": "string"
+            },
+            {
+              "id": "d1b327af-a450-454c-96e7-169e39793bea",
+              "name": "main.vars.messageClassifier.description.audio",
+              "value": "prompts that describe, summary, or answer questions about audio content, or provide a transcription of audio, or analyze specific segments of audio",
+              "type": "string"
+            },
+            {
+              "id": "fa5dd565-53ea-483e-a9e1-2e50c288d7ce",
+              "name": "main.vars.messageClassifier.description.video",
+              "value": "prompts that describe, summary, segment, or extract information from videos, or answer questions about video content, or refer to specific timestamps within a video",
+              "type": "string"
+            },
+            {
+              "id": "99924b45-d26b-409a-9a5d-c9ce895989e5",
+              "name": "main.vars.messageClassifier.description.general",
+              "value": "prompts that do not belong to any specific category",
+              "type": "string"
+            },
+            {
+              "id": "e4b137c5-817e-4db4-be6e-43fe80023427",
+              "name": "main.vars.realTimeSearching.description",
+              "value": "Use this tool to search for up-to-date, real-time information or facts that may not exist in the AI model’s internal knowledge base\nCall this tool when the question involves:\n- Current events (e.g., news, trends, financial markets, sports scores...)\n- Recent updates (e.g., newly released products, recent regulations...)\n- Factual verification (e.g., confirming public figures' statements, latest statistics...)\n- Information that changes over time (e.g., date time, weather, stock prices...)\nThis tool will perform a live search using external sources and return the most relevant and accurate result\nAlways prefer this tool when you are uncertain whether your knowledge is complete or current",
+              "type": "string"
+            },
+            {
+              "id": "f1bed9ac-4f76-4702-90cc-c29317fc40ef",
+              "name": "main.vars.imageClassifier.prompt",
+              "value": "Classify the image below into one of the following categories and format the output as only <category name>\n- invoice: image in which invoices are the primary objects\n- general: images that do not belong to any specific category",
+              "type": "string"
+            },
+            {
+              "id": "1da4654a-540f-4719-a241-0035ada0fbca",
+              "name": "main.vars.audioTranscriber.prompt",
+              "value": "Transcribe the spoken audio into clean verbatim text. Remove filler words (like um, uh...), false starts, and unnecessary repetitions. Maintain the speaker's original meaning and sentence structure, and use correct grammar and punctuation. Do not summarize or paraphrase — just present a clear, readable version of what was said",
+              "type": "string"
+            },
+            {
+              "id": "2b7f8f5e-3994-4ef5-aec8-979477a4cc26",
+              "name": "main.vars.caching.session.ttlInDays",
+              "value": "30",
+              "type": "string"
+            },
+            {
+              "id": "36e1d87c-137d-4e97-9301-cc68bdf77646",
+              "name": "main.vars.caching.session.contextLength",
+              "value": "6",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -760,
+        1180
+      ],
+      "id": "26fac77a-fd23-414b-b7a5-0827e54f2450",
+      "name": "setGlobalVars"
+    },
+    {
+      "parameters": {
+        "modelName": "=models/{{ $json.main.vars.ai.google.generalModel }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        1100
+      ],
+      "id": "4ffea854-2603-4c35-bf6b-5996ef01fc8e",
+      "name": "Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uyOs56MFdKYyE9ZM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "DGDaDGwRyzLlSyLb",
+          "mode": "list",
+          "cachedResultName": "FileUploader"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1620,
+        1320
+      ],
+      "id": "c8d4d5a2-d632-4b9b-87c6-cf16ab6be050",
+      "name": "execFileUploader"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "guwskv0PlKX32N3a",
+          "mode": "list",
+          "cachedResultName": "TextOutputSender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2520,
+        900
+      ],
+      "id": "19dfd248-3735-4f9f-accf-d6840f2b0886",
+      "name": "execTextOutputSender"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cA7Fyt1gU2U8jt7i",
+          "mode": "list",
+          "cachedResultName": "AudioTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1920,
+        1320
+      ],
+      "id": "d34ce5d9-3bb2-4635-a801-ef2c096ba097",
+      "name": "execAudioTask1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BpWT3GHR7aaqatKz",
+          "mode": "list",
+          "cachedResultName": "ImageOutputSender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2520,
+        500
+      ],
+      "id": "2bbddc3e-4510-4cad-99cb-b43ca48b6750",
+      "name": "execImageOutputSender"
+    }
+  ],
+  "connections": {
+    "hasData": {
+      "main": [
+        [
+          {
+            "node": "hasFile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "execMessageReactionSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "normalizeSlackData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "normalizeTelegramData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalizeTelegramData": {
+      "main": [
+        [
+          {
+            "node": "setGlobalVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalizeSlackData": {
+      "main": [
+        [
+          {
+            "node": "setGlobalVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hasFile": {
+      "main": [
+        [
+          {
+            "node": "execFileProcessor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "hasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fileTypeRule": {
+      "main": [
+        [
+          {
+            "node": "execFileUploader",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execImageClassifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imageCategoryRule": {
+      "main": [
+        [
+          {
+            "node": "execInvoiceTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hasMessage": {
+      "main": [
+        [
+          {
+            "node": "Message Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "fileTypeRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execFileProcessor": {
+      "main": [
+        [
+          {
+            "node": "hasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execImageClassifier": {
+      "main": [
+        [
+          {
+            "node": "imageCategoryRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Classifier": {
+      "main": [
+        [
+          {
+            "node": "execImageGenTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execAudioTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execVideoTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execGeneralTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "setErrorMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "getAppInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setErrorMessage": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "getAppInfo": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setGlobalVars": {
+      "main": [
+        [
+          {
+            "node": "hasData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Message Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execFileUploader": {
+      "main": [
+        [
+          {
+            "node": "execAudioTask1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execGeneralTask": {
+      "main": [
+        [
+          {
+            "node": "execTextOutputSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execAudioTask1": {
+      "main": [
+        [
+          {
+            "node": "execGeneralTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execVideoTask": {
+      "main": [
+        [
+          {
+            "node": "execTextOutputSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execAudioTask": {
+      "main": [
+        [
+          {
+            "node": "execTextOutputSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execImageGenTask": {
+      "main": [
+        [
+          {
+            "node": "execImageOutputSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 2,
+  "tags": []
+}

@@ -1,0 +1,144 @@
+{
+  "createdAt": "2025-05-04T16:57:14.074Z",
+  "id": "cA7Fyt1gU2U8jt7i",
+  "name": "AudioTaskProcessor",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bc465a7c-92ee-4663-9b42-6aeee00d3192",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.main.vars.ai.google.baseUrl }}/{{ $json.main.vars.ai.google.generalModel }}:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.main.vars.ai.google.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": \"{{ $json.main.data.uploaded_file.mimeType }}\",\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.vars.audioTranscriber.prompt }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        140
+      ],
+      "id": "a4ed5d0d-2ae5-4edd-91c5-f58c8da6c85f",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a83c526-b60e-4aab-9a93-1e517a2b29e5",
+              "name": "main.output.text",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "stripBinary": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        20
+      ],
+      "id": "e2840bdc-cd7a-4531-85b0-327f2cf84420",
+      "name": "normalizeOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        600,
+        20
+      ],
+      "id": "4b6ef50b-be6d-4a7d-9d39-13f5b5051775",
+      "name": "Merge1"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "normalizeOutput": {
+      "main": [
+        []
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "normalizeOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "tags": []
+}
