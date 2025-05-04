@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-05-04T16:57:14.194Z",
-  "id": "qZIqw6lVGzghJOzU",
+  "createdAt": "2025-05-04T18:35:21.171Z",
+  "id": "tjVmB1HEsZvBex58",
   "name": "Main",
   "active": true,
   "nodes": [
@@ -72,8 +72,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -460,
-        1180
+        -1480,
+        1160
       ],
       "id": "56c1fc4f-1aac-4e4d-9344-f004ab52b4f0",
       "name": "hasData"
@@ -89,8 +89,8 @@
       "type": "n8n-nodes-base.slackTrigger",
       "typeVersion": 1,
       "position": [
-        -1440,
-        920
+        -2460,
+        900
       ],
       "id": "8a703157-0207-4fd8-a2cc-33144c935b1a",
       "name": "Slack Trigger",
@@ -114,8 +114,8 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1440,
-        1440
+        -2460,
+        1420
       ],
       "id": "5a397500-1d51-4fe5-ac89-209e04aa0144",
       "name": "Telegram Trigger",
@@ -192,8 +192,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1140,
-        1440
+        -2160,
+        1420
       ],
       "id": "cb2b8a99-a651-461d-a7bc-8e30cb90e1ee",
       "name": "normalizeTelegramData"
@@ -263,8 +263,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1140,
-        920
+        -2160,
+        900
       ],
       "id": "b68b8fb2-9bb0-44d5-a417-c797e058f308",
       "name": "normalizeSlackData"
@@ -327,8 +327,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        240,
-        1160
+        -780,
+        1140
       ],
       "id": "211095d0-8c4f-494d-bf11-327e493f4ec3",
       "name": "hasFile"
@@ -337,31 +337,6 @@
       "parameters": {
         "rules": {
           "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "64ad04b4-fb38-4c8e-a046-78e00d5e8657",
-                    "leftValue": "={{ $json.main.data.audio.id }}",
-                    "rightValue": "",
-                    "operator": {
-                      "type": "string",
-                      "operation": "notEmpty",
-                      "singleValue": true
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "audio"
-            },
             {
               "conditions": {
                 "options": {
@@ -386,6 +361,31 @@
               },
               "renameOutput": true,
               "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "64ad04b4-fb38-4c8e-a046-78e00d5e8657",
+                    "leftValue": "={{ $json.main.data.audio.id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
             }
           ]
         },
@@ -396,7 +396,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        1320,
+        1540,
         1460
       ],
       "id": "acf03920-f9f5-46d2-ae1d-097baab8d1a8",
@@ -440,8 +440,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        1920,
-        1600
+        2140,
+        1320
       ],
       "id": "5343093e-7180-4b16-bf79-4c47355f64d5",
       "name": "imageCategoryRule"
@@ -474,7 +474,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        940,
+        1160,
         1180
       ],
       "id": "5a05921c-c6f5-4ddc-ae65-ca2f7965d59a",
@@ -484,7 +484,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "QOvl9aBFU2SuruWw",
+          "value": "8GVcCWTPbpxip3mf",
           "mode": "list",
           "cachedResultName": "FileProcessor"
         },
@@ -503,8 +503,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        580,
-        1000
+        -480,
+        920
       ],
       "id": "014c97a5-eac7-4680-b697-0c9d755cfbcf",
       "name": "execFileProcessor"
@@ -513,7 +513,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "fwBlY5a3ZQCbGo7z",
+          "value": "zkfOzMescX5fmkSU",
           "mode": "list",
           "cachedResultName": "ImageClassifier"
         },
@@ -532,8 +532,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1620,
-        1600
+        1840,
+        1320
       ],
       "id": "bffda710-8d13-454b-8643-21bc6fb37ac7",
       "name": "execImageClassifier"
@@ -568,7 +568,7 @@
       "type": "@n8n/n8n-nodes-langchain.textClassifier",
       "typeVersion": 1,
       "position": [
-        1320,
+        1540,
         880
       ],
       "id": "b3fbb6da-86cc-4b20-b045-bf0aa517d88c",
@@ -578,7 +578,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "zKM7SQoO5mMXanCB",
+          "value": "FBdr09N7JRkteYyf",
           "mode": "list",
           "cachedResultName": "GeneralTaskProcessor"
         },
@@ -597,7 +597,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2220,
+        2140,
         1100
       ],
       "id": "2b580e71-64a8-4b3a-8500-2e2e7f475977",
@@ -607,7 +607,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "02CuOzdxpvEmK2QV",
+          "value": "NlyPSApom6xYEJKE",
           "mode": "list",
           "cachedResultName": "InvoiceTaskProcessor"
         },
@@ -626,8 +626,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2220,
-        1600
+        2440,
+        1320
       ],
       "id": "c69a1cd5-7586-4bc0-9ea3-9d78c79580ca",
       "name": "execInvoiceTask"
@@ -636,7 +636,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "vwJlHYXWy77RqDns",
+          "value": "yjLjj1uRey17NtuY",
           "mode": "list",
           "cachedResultName": "ImageGenTaskProcessor"
         },
@@ -655,7 +655,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2220,
+        2140,
         500
       ],
       "id": "655cbf6d-f7ea-4719-a38c-647daab0f222",
@@ -665,7 +665,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "cA7Fyt1gU2U8jt7i",
+          "value": "PgdQOCHtGzuAxbO9",
           "mode": "list",
           "cachedResultName": "AudioTaskProcessor"
         },
@@ -684,7 +684,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2220,
+        2140,
         700
       ],
       "id": "65af597c-5120-41cd-880e-c68861ef3857",
@@ -694,7 +694,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "NYXw4vVYM8NacXWO",
+          "value": "KttcnwxKFinA5dTw",
           "mode": "list",
           "cachedResultName": "VideoTaskProcessor"
         },
@@ -713,7 +713,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2220,
+        2140,
         900
       ],
       "id": "602b4ce9-6f2c-4249-a5ac-164888e94ccc",
@@ -723,7 +723,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "bpexG2HibxA8SYjJ",
+          "value": "M6KG2oaa3FjQ8qG2",
           "mode": "list",
           "cachedResultName": "MessageReactionSender"
         },
@@ -740,8 +740,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -100,
-        1000
+        -1120,
+        920
       ],
       "id": "5c7e72b4-58e8-4a49-94b4-2821e4788ff3",
       "name": "execMessageReactionSender"
@@ -751,8 +751,8 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        -1440,
-        440
+        -2460,
+        400
       ],
       "id": "da8ead9b-df6b-4d35-a37d-e55eac22f377",
       "name": "Error Trigger"
@@ -770,8 +770,8 @@
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        -1140,
-        300
+        -2160,
+        260
       ],
       "id": "497eedf6-fee0-416c-be2c-3d237c94ad73",
       "name": "n8n",
@@ -791,8 +791,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        -480,
-        420
+        -1500,
+        380
       ],
       "id": "d4583166-dfbb-498d-a7a2-3dcc41715fe4",
       "name": "Merge"
@@ -809,8 +809,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        120,
-        560
+        -900,
+        520
       ],
       "id": "1e367133-0f72-44a3-8821-e2b4496be5a9",
       "name": "Telegram",
@@ -845,8 +845,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -960,
-        440
+        -1980,
+        400
       ],
       "id": "9a7e5323-0b0d-4fd8-9b59-26565f7b9dc5",
       "name": "setErrorMessage"
@@ -868,8 +868,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -780,
-        300
+        -1800,
+        260
       ],
       "id": "c9ad9063-5065-4b19-b406-32c25bfaa47b",
       "name": "getAppInfo"
@@ -896,8 +896,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        120,
-        280
+        -900,
+        240
       ],
       "id": "828978df-3455-4a7c-ab96-0ca6c96f8cca",
       "name": "Slack",
@@ -972,8 +972,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -180,
-        420
+        -1200,
+        380
       ],
       "id": "324b5d7d-f1f0-4c87-b9fb-0d6e1b6c4b8f",
       "name": "appRule"
@@ -1092,8 +1092,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -760,
-        1180
+        -1780,
+        1160
       ],
       "id": "26fac77a-fd23-414b-b7a5-0827e54f2450",
       "name": "setGlobalVars"
@@ -1106,7 +1106,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        1540,
+        1760,
         1100
       ],
       "id": "4ffea854-2603-4c35-bf6b-5996ef01fc8e",
@@ -1122,36 +1122,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "DGDaDGwRyzLlSyLb",
-          "mode": "list",
-          "cachedResultName": "FileUploader"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        1620,
-        1320
-      ],
-      "id": "c8d4d5a2-d632-4b9b-87c6-cf16ab6be050",
-      "name": "execFileUploader"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "guwskv0PlKX32N3a",
+          "value": "e8qWvoCoyym4fl1U",
           "mode": "list",
           "cachedResultName": "TextOutputSender"
         },
@@ -1170,7 +1141,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2520,
+        2440,
         900
       ],
       "id": "19dfd248-3735-4f9f-accf-d6840f2b0886",
@@ -1180,7 +1151,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "cA7Fyt1gU2U8jt7i",
+          "value": "PgdQOCHtGzuAxbO9",
           "mode": "list",
           "cachedResultName": "AudioTaskProcessor"
         },
@@ -1199,8 +1170,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1920,
-        1320
+        1840,
+        1600
       ],
       "id": "d34ce5d9-3bb2-4635-a801-ef2c096ba097",
       "name": "execAudioTask1"
@@ -1209,7 +1180,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "BpWT3GHR7aaqatKz",
+          "value": "jcxSAd0tfFE3Z2qz",
           "mode": "list",
           "cachedResultName": "ImageOutputSender"
         },
@@ -1228,11 +1199,100 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2520,
+        2440,
         500
       ],
       "id": "2bbddc3e-4510-4cad-99cb-b43ca48b6750",
       "name": "execImageOutputSender"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1e92bf35-a095-4a39-9d43-7c741dfb5609",
+              "leftValue": "={{ $json.main.data.image.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -180,
+        920
+      ],
+      "id": "e0918700-803a-4fe6-956e-bbd9f09a997d",
+      "name": "isImage"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c08ef6b1-7f5a-4072-b674-1019ddb4f16e",
+              "name": "main.data.message.text",
+              "value": "={{ $json.main.output.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "stripBinary": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2140,
+        1600
+      ],
+      "id": "c8b875be-5fdd-4a99-b01a-6a0dd1087330",
+      "name": "setMessage"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xJidVttcpIoB08oU",
+          "mode": "list",
+          "cachedResultName": "FileUploader"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        1060
+      ],
+      "id": "6ea2928f-cc91-4b59-a7c4-f69b8415ace2",
+      "name": "execFileUploader"
     }
   ],
   "connections": {
@@ -1318,14 +1378,14 @@
       "main": [
         [
           {
-            "node": "execFileUploader",
+            "node": "execImageClassifier",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "execImageClassifier",
+            "node": "execAudioTask1",
             "type": "main",
             "index": 0
           }
@@ -1365,7 +1425,7 @@
       "main": [
         [
           {
-            "node": "hasMessage",
+            "node": "isImage",
             "type": "main",
             "index": 0
           }
@@ -1515,17 +1575,6 @@
         ]
       ]
     },
-    "execFileUploader": {
-      "main": [
-        [
-          {
-            "node": "execAudioTask1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "execGeneralTask": {
       "main": [
         [
@@ -1541,7 +1590,7 @@
       "main": [
         [
           {
-            "node": "execGeneralTask",
+            "node": "setMessage",
             "type": "main",
             "index": 0
           }
@@ -1575,6 +1624,46 @@
         [
           {
             "node": "execImageOutputSender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isImage": {
+      "main": [
+        [
+          {
+            "node": "hasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execFileUploader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setMessage": {
+      "main": [
+        [
+          {
+            "node": "hasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execFileUploader": {
+      "main": [
+        [
+          {
+            "node": "hasMessage",
             "type": "main",
             "index": 0
           }

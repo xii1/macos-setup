@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-05-04T16:57:14.100Z",
-  "id": "DGDaDGwRyzLlSyLb",
+  "createdAt": "2025-05-04T18:35:21.100Z",
+  "id": "xJidVttcpIoB08oU",
   "name": "FileUploader",
   "active": false,
   "nodes": [
@@ -43,7 +43,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1500,
+        2700,
         20
       ],
       "id": "c2eae5ad-966b-4c6b-814e-5c7856da6e57",
@@ -58,7 +58,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        1200,
+        2400,
         20
       ],
       "id": "672409b2-c7da-4156-9198-15aa6418c660",
@@ -78,6 +78,87 @@
       ],
       "id": "2e55a29f-f4f3-4b16-a6a7-4afb20737f2f",
       "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60b7adab-8f46-4e59-ac16-4ad6902f91ad",
+              "leftValue": "={{ $json.file.state }}",
+              "rightValue": "active",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2100,
+        200
+      ],
+      "id": "d096c854-220c-42d9-bf40-bacdca6ff45c",
+      "name": "isActiveState"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        200
+      ],
+      "id": "690cf7c9-47c6-47b3-9ae2-883901647b52",
+      "name": "Wait",
+      "webhookId": "8e84b3da-8caa-4f07-a7b5-16af97a82174"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.headers['x-goog-upload-url'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-Upload-Offset",
+              "value": "0"
+            },
+            {
+              "name": "X-Goog-Upload-Command",
+              "value": "upload, finalize"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        200
+      ],
+      "id": "693209e1-97d7-45b2-8a8f-4eb3d387db47",
+      "name": "upload",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
     },
     {
       "parameters": {
@@ -124,38 +205,69 @@
         220
       ],
       "id": "df6fdf88-6994-4b00-bea0-8eae43409074",
-      "name": "HTTP Request"
+      "name": "prepare",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $json.headers['x-goog-upload-url'] }}",
-        "sendHeaders": true,
-        "headerParameters": {
+        "url": "={{ $json.file.uri }}",
+        "sendQuery": true,
+        "queryParameters": {
           "parameters": [
             {
-              "name": "X-Goog-Upload-Offset",
-              "value": "0"
-            },
-            {
-              "name": "X-Goog-Upload-Command",
-              "value": "upload, finalize"
+              "name": "key",
+              "value": "={{ $('Merge1').item.json.main.vars.ai.google.apiKey }}"
             }
           ]
         },
-        "sendBody": true,
-        "contentType": "binaryData",
-        "inputDataFieldName": "data",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        900,
+        1500,
         200
       ],
-      "id": "693209e1-97d7-45b2-8a8f-4eb3d387db47",
-      "name": "HTTP Request1"
+      "id": "e8ca2c3b-1adb-4bcd-8e7a-ba5fe1650a24",
+      "name": "getFileState",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0826955e-94af-41bc-bb58-8304763bb690",
+              "name": "file.uri",
+              "value": "={{ $json.uri }}",
+              "type": "string"
+            },
+            {
+              "id": "8d388067-fb3b-4ba7-92d7-7c7af009667b",
+              "name": "file.mimeType",
+              "value": "={{ $json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "bad3a2b1-b1a9-4beb-890b-8f329c7fa32c",
+              "name": "file.state",
+              "value": "={{ $json.state }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1800,
+        200
+      ],
+      "id": "a7a5d712-3d7f-4734-b3ba-e978a960c569",
+      "name": "setFileInfo"
     }
   ],
   "connections": {
@@ -173,7 +285,7 @@
             "index": 0
           },
           {
-            "node": "HTTP Request",
+            "node": "prepare",
             "type": "main",
             "index": 0
           }
@@ -195,14 +307,54 @@
       "main": [
         [
           {
-            "node": "HTTP Request1",
+            "node": "upload",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "HTTP Request": {
+    "isActiveState": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "getFileState",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare": {
       "main": [
         [
           {
@@ -213,13 +365,24 @@
         ]
       ]
     },
-    "HTTP Request1": {
+    "getFileState": {
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "setFileInfo",
             "type": "main",
-            "index": 1
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setFileInfo": {
+      "main": [
+        [
+          {
+            "node": "isActiveState",
+            "type": "main",
+            "index": 0
           }
         ]
       ]

@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-05-04T16:57:14.116Z",
-  "id": "NYXw4vVYM8NacXWO",
+  "createdAt": "2025-05-04T18:35:21.097Z",
+  "id": "KttcnwxKFinA5dTw",
   "name": "VideoTaskProcessor",
   "active": false,
   "nodes": [
@@ -26,8 +26,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        440,
-        100
+        140,
+        120
       ],
       "id": "6927bec2-0906-4183-9f7a-22743239bbe0",
       "name": "Merge"
@@ -53,11 +53,13 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        0,
-        0
+        -160,
+        40
       ],
       "id": "93fa3b3f-fe32-4f46-941f-fef42b848495",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
     },
     {
       "parameters": {
@@ -135,40 +137,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        820,
+        440,
         220
       ],
       "id": "eb165fd2-e3a2-4769-96ee-5cf7f58cfe07",
       "name": "normalizeOutput"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "DGDaDGwRyzLlSyLb",
-          "mode": "list",
-          "cachedResultName": "FileUploader"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -160,
-        440
-      ],
-      "id": "9a4d6f1c-7e8a-4416-9712-ba07078d097a",
-      "name": "execFileUploader"
     },
     {
       "parameters": {
@@ -185,14 +158,14 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": {{ $json.main.data.uploaded_file.mimeType }},\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": \"{{ $json.main.data.uploaded_file.mimeType }}\",\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text }}\"\n        }\n      ]\n    }\n  ]\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        140,
-        440
+        -160,
+        400
       ],
       "id": "2decc655-a87c-487f-9d5a-c19e5ce4e507",
       "name": "HTTP Request1",
@@ -208,7 +181,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        440,
+        140,
         340
       ],
       "id": "99bad546-9684-47a7-afe2-a7bc59caa19d",
@@ -276,21 +249,10 @@
         ],
         [
           {
-            "node": "execFileUploader",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Merge1",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "execFileUploader": {
-      "main": [
-        [
+          },
           {
             "node": "HTTP Request1",
             "type": "main",

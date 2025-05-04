@@ -1,7 +1,7 @@
 {
-  "createdAt": "2025-05-04T18:35:21.058Z",
-  "id": "PgdQOCHtGzuAxbO9",
-  "name": "AudioTaskProcessor",
+  "createdAt": "2025-05-06T03:07:21.145Z",
+  "id": "PVxblstAh0eQ1yqf",
+  "name": "DocumentTaskProcessor",
   "active": false,
   "nodes": [
     {
@@ -14,7 +14,7 @@
         0,
         0
       ],
-      "id": "bc465a7c-92ee-4663-9b42-6aeee00d3192",
+      "id": "b26a331e-59ee-484a-82a3-c8d449a22cba",
       "name": "When Executed by Another Workflow"
     },
     {
@@ -32,7 +32,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": \"{{ $json.main.data.uploaded_file.mimeType }}\",\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.data.message.text || $json.main.vars.audioTranscriber.prompt }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"file_data\": {\n            \"mime_type\": \"{{ $json.main.data.uploaded_file.mimeType }}\",\n            \"file_uri\": \"{{ $json.main.data.uploaded_file.url }}\"\n          }\n        },\n        {\n          \"text\": \"{{ $json.main.vars.audioTranscriber.prompt }}\"\n        }\n      ]\n    }\n  ]\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -41,7 +41,7 @@
         300,
         140
       ],
-      "id": "a4ed5d0d-2ae5-4edd-91c5-f58c8da6c85f",
+      "id": "3f7cfb95-8997-46e6-9911-841a439ea68c",
       "name": "HTTP Request",
       "retryOnFail": true,
       "waitBetweenTries": 3000
@@ -67,7 +67,7 @@
         900,
         20
       ],
-      "id": "e2840bdc-cd7a-4531-85b0-327f2cf84420",
+      "id": "36bbcf4f-b87d-4175-bda6-611b65deb47c",
       "name": "normalizeOutput"
     },
     {
@@ -82,7 +82,7 @@
         600,
         20
       ],
-      "id": "4b6ef50b-be6d-4a7d-9d39-13f5b5051775",
+      "id": "941fa12e-ebe2-4e54-8c01-54bacbd60539",
       "name": "Merge1"
     }
   ],

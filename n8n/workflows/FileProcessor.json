@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-05-04T16:57:14.104Z",
-  "id": "QOvl9aBFU2SuruWw",
+  "createdAt": "2025-05-04T18:35:21.109Z",
+  "id": "8GVcCWTPbpxip3mf",
   "name": "FileProcessor",
   "active": false,
   "nodes": [
@@ -115,6 +115,8 @@
       ],
       "id": "5a6c9d80-6925-4bd8-96db-06cfb5f0996f",
       "name": "getSlackFile",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "slackApi": {
           "id": "nq9l1vLjoG9bmDhB",

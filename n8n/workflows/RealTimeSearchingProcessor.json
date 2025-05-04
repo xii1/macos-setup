@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-05-04T16:57:14.107Z",
-  "id": "xZUaFhOIxaeaoppX",
+  "createdAt": "2025-05-04T18:35:21.077Z",
+  "id": "EMZzylDONQAYDF6x",
   "name": "RealTimeSearchingProcessor",
   "active": false,
   "nodes": [
@@ -29,7 +29,9 @@
         -20
       ],
       "id": "0a1dfb6a-ca22-4f5a-a7da-35c3d0a5228a",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
     },
     {
       "parameters": {
