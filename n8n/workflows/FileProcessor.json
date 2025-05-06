@@ -88,24 +88,16 @@
     },
     {
       "parameters": {
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1220,
-        -100
-      ],
-      "id": "9803ea0d-a3ff-4f01-a7f8-e93b9891be64",
-      "name": "normalizeOutput"
-    },
-    {
-      "parameters": {
         "url": "={{ $json.main.data.image.id || $json.main.data.audio.id || $json.main.data.video.id || $json.main.data.document.id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "slackApi",
-        "options": {}
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -147,26 +139,10 @@
       "typeVersion": 2,
       "position": [
         1220,
-        100
+        0
       ],
       "id": "9f170b8e-f87a-4c85-b366-48cdd742f391",
       "name": "rewriteMimeType"
-    },
-    {
-      "parameters": {
-        "includeOtherFields": true,
-        "include": "except",
-        "excludeFields": "ok,result",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1520,
-        100
-      ],
-      "id": "d42d13bc-989b-46dd-acfd-1a54b1b3bb81",
-      "name": "normalizeOutput1"
     },
     {
       "parameters": {
@@ -203,6 +179,22 @@
       ],
       "id": "088bcab9-1270-4eba-ad0f-eeb5bdc42aa8",
       "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "include": "except",
+        "excludeFields": "ok,result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        0
+      ],
+      "id": "d42d13bc-989b-46dd-acfd-1a54b1b3bb81",
+      "name": "normalizeOutput"
     }
   ],
   "connections": {
@@ -271,7 +263,7 @@
       "main": [
         [
           {
-            "node": "normalizeOutput1",
+            "node": "normalizeOutput",
             "type": "main",
             "index": 0
           }
@@ -293,7 +285,7 @@
       "main": [
         [
           {
-            "node": "normalizeOutput",
+            "node": "rewriteMimeType",
             "type": "main",
             "index": 0
           }
