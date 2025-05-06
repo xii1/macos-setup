@@ -146,7 +146,7 @@
             {
               "id": "14cbafb0-b192-443e-b2d7-51429038ec81",
               "name": "main.data.audio.id",
-              "value": "={{ $json.message.voice && $json.message.voice.file_id || \"\" }}",
+              "value": "={{ $json.message.voice && $json.message.voice.file_id || $json.message.audio && $json.message.audio.file_id || \"\" }}",
               "type": "string"
             },
             {
@@ -556,6 +556,10 @@
               "description": "={{ $json.main.vars.messageClassifier.description.video }}"
             },
             {
+              "category": "document",
+              "description": "={{ $json.main.vars.messageClassifier.description.document }}"
+            },
+            {
               "category": "general",
               "description": "={{ $json.main.vars.messageClassifier.description.general }}"
             }
@@ -656,7 +660,7 @@
       "typeVersion": 1.2,
       "position": [
         2140,
-        500
+        300
       ],
       "id": "655cbf6d-f7ea-4719-a38c-647daab0f222",
       "name": "execImageGenTask"
@@ -685,7 +689,7 @@
       "typeVersion": 1.2,
       "position": [
         2140,
-        700
+        500
       ],
       "id": "65af597c-5120-41cd-880e-c68861ef3857",
       "name": "execAudioTask"
@@ -714,7 +718,7 @@
       "typeVersion": 1.2,
       "position": [
         2140,
-        900
+        700
       ],
       "id": "602b4ce9-6f2c-4249-a5ac-164888e94ccc",
       "name": "execVideoTask"
@@ -1033,19 +1037,25 @@
             {
               "id": "44472703-f13e-4997-942f-e1feda5ed69f",
               "name": "main.vars.messageClassifier.description.image",
-              "value": "prompts that generate, edit, transform, or modify an image in any way, excluding requests to analyze or describe the image",
+              "value": "Prompts that generate, edit, transform, or otherwise modify an image in any way, excluding requests to analyze or describe the image",
               "type": "string"
             },
             {
               "id": "d1b327af-a450-454c-96e7-169e39793bea",
               "name": "main.vars.messageClassifier.description.audio",
-              "value": "prompts that describe, summary, or answer questions about audio content, or provide a transcription of audio, or analyze specific segments of audio",
+              "value": "Prompts that describe, summarize, or answer questions about audio content; provide a transcription of audio; or analyze specific segments of audio",
               "type": "string"
             },
             {
               "id": "fa5dd565-53ea-483e-a9e1-2e50c288d7ce",
               "name": "main.vars.messageClassifier.description.video",
-              "value": "prompts that describe, summary, segment, or extract information from videos, or answer questions about video content, or refer to specific timestamps within a video",
+              "value": "Prompts that describe, summarize, segment, or extract information from videos; answer questions about video content; or refer to specific timestamps within a video",
+              "type": "string"
+            },
+            {
+              "id": "3bf90f5c-6490-429e-933e-1f803f5f7522",
+              "name": "main.vars.messageClassifier.description.document",
+              "value": "Prompts that describe, summarize, or extract structured information from document (or file) contents; analyze diagrams, charts, or tables within documents (or files); or answer questions about visual or textual elements in documents (or files)",
               "type": "string"
             },
             {
@@ -1200,7 +1210,7 @@
       "typeVersion": 1.2,
       "position": [
         2440,
-        500
+        300
       ],
       "id": "2bbddc3e-4510-4cad-99cb-b43ca48b6750",
       "name": "execImageOutputSender"
@@ -1293,6 +1303,35 @@
       ],
       "id": "6ea2928f-cc91-4b59-a7c4-f69b8415ace2",
       "name": "execFileUploader"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UX5De3E79L3FbkxJ",
+          "mode": "list",
+          "cachedResultName": "DocumentTaskProcessor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2140,
+        900
+      ],
+      "id": "4d2b222b-bf7f-40d6-99df-f0a264607059",
+      "name": "execDocumentTask"
     }
   ],
   "connections": {
@@ -1462,6 +1501,13 @@
         [
           {
             "node": "execVideoTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execDocumentTask",
             "type": "main",
             "index": 0
           }
@@ -1664,6 +1710,17 @@
         [
           {
             "node": "hasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execDocumentTask": {
+      "main": [
+        [
+          {
+            "node": "execTextOutputSender",
             "type": "main",
             "index": 0
           }

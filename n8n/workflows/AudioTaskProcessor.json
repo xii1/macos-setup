@@ -83,7 +83,7 @@
         20
       ],
       "id": "4b6ef50b-be6d-4a7d-9d39-13f5b5051775",
-      "name": "Merge1"
+      "name": "Merge"
     }
   ],
   "connections": {
@@ -91,7 +91,7 @@
       "main": [
         [
           {
-            "node": "Merge1",
+            "node": "Merge",
             "type": "main",
             "index": 0
           },
@@ -107,7 +107,7 @@
       "main": [
         [
           {
-            "node": "Merge1",
+            "node": "Merge",
             "type": "main",
             "index": 1
           }
@@ -119,7 +119,7 @@
         []
       ]
     },
-    "Merge1": {
+    "Merge": {
       "main": [
         [
           {
