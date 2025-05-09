@@ -1,0 +1,128 @@
+{
+  "createdAt": "2025-05-09T02:51:27.058Z",
+  "id": "WsNQgyJ6I34AJ9UG",
+  "name": "N8NUpgradeScheduler",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8752de2d-c8f2-49d5-82c5-8bdc899a9c2a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "command": "npm install -g n8n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        300,
+        0
+      ],
+      "id": "061cb4fe-fcbd-4c6b-ae89-c5f4784c11fc",
+      "name": "upgrade"
+    },
+    {
+      "parameters": {
+        "command": "systemd-run --user --on-active=\"10\" --setenv=PATH=\"$PATH\" pm2 restart n8n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "id": "e930ee81-a4de-4a52-8d30-cfeb2a547c45",
+      "name": "restart"
+    },
+    {
+      "parameters": {
+        "events": [
+          "init"
+        ]
+      },
+      "type": "n8n-nodes-base.n8nTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ],
+      "id": "0a71de61-3251-4dc7-bae5-517c313f9134",
+      "name": "n8n Trigger"
+    },
+    {
+      "parameters": {
+        "command": "sudo tailscale funnel --bg 5678"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        300,
+        -220
+      ],
+      "id": "1176c23a-bc50-4633-bbd8-f619aa59847b",
+      "name": "Execute Command"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "upgrade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upgrade": {
+      "main": [
+        [
+          {
+            "node": "restart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "triggerCount": 2,
+  "tags": []
+}
