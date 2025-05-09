@@ -25,12 +25,12 @@
     },
     {
       "parameters": {
-        "command": "npm install -g n8n"
+        "command": "npm install -g n8n@lastest"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        300,
+        900,
         0
       ],
       "id": "061cb4fe-fcbd-4c6b-ae89-c5f4784c11fc",
@@ -38,12 +38,12 @@
     },
     {
       "parameters": {
-        "command": "systemd-run --user --on-active=\"10\" --setenv=PATH=\"$PATH\" pm2 restart n8n"
+        "command": "systemd-run --user --on-active=\"15\" --setenv=PATH=\"$PATH\" pm2 restart n8n"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        600,
+        1200,
         0
       ],
       "id": "e930ee81-a4de-4a52-8d30-cfeb2a547c45",
@@ -76,6 +76,54 @@
       ],
       "id": "1176c23a-bc50-4633-bbd8-f619aa59847b",
       "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "command": "LATEST_N8N=$(npm view n8n version 2>/dev/null); INSTALLED_N8N=$(n8n --version 2>/dev/null); if [ \"$LATEST_N8N\" != \"$INSTALLED_N8N\" ]; then echo true; else echo false; fi"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        300,
+        0
+      ],
+      "id": "d360d4ec-72d3-4339-8712-5c8bb728835e",
+      "name": "checkVersion"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9fa6409d-fcd8-4c07-a6ec-3497253ff5fb",
+              "leftValue": "={{ $json.stdout }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        0
+      ],
+      "id": "f4f20cc8-2c79-4a55-b089-f97869250946",
+      "name": "isOutdated"
     }
   ],
   "connections": {
@@ -83,7 +131,7 @@
       "main": [
         [
           {
-            "node": "upgrade",
+            "node": "checkVersion",
             "type": "main",
             "index": 0
           }
@@ -106,6 +154,28 @@
         [
           {
             "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkVersion": {
+      "main": [
+        [
+          {
+            "node": "isOutdated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isOutdated": {
+      "main": [
+        [
+          {
+            "node": "upgrade",
             "type": "main",
             "index": 0
           }
