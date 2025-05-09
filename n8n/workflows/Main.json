@@ -1091,7 +1091,7 @@
             {
               "id": "36e1d87c-137d-4e97-9301-cc68bdf77646",
               "name": "main.vars.caching.session.contextLength",
-              "value": "6",
+              "value": "3",
               "type": "string"
             }
           ]
