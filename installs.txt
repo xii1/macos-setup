@@ -42,7 +42,7 @@ brew install python
 brew install node
 
 # docker & k8s
-brew install --cask podman-desktop
+brew install podman
 brew install kubernetes-cli
 brew install helm
 brew install fluxcd/tap/flux
