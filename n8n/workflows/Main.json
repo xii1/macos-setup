@@ -1011,15 +1011,15 @@
               "type": "string"
             },
             {
-              "id": "7ed3e8af-5089-4b00-9e9b-bfb8298a22cf",
-              "name": "main.vars.ai.google.imageGenModel",
-              "value": "gemini-2.0-flash-exp-image-generation",
-              "type": "string"
-            },
-            {
               "id": "3d46cce3-56cf-430e-9978-746a1790c252",
               "name": "main.vars.ai.google.generalModel",
               "value": "gemini-2.5-flash-preview-04-17",
+              "type": "string"
+            },
+            {
+              "id": "7ed3e8af-5089-4b00-9e9b-bfb8298a22cf",
+              "name": "main.vars.ai.google.imageGenModel",
+              "value": "gemini-2.0-flash-preview-image-generation",
               "type": "string"
             },
             {
@@ -1085,14 +1085,14 @@
             {
               "id": "2b7f8f5e-3994-4ef5-aec8-979477a4cc26",
               "name": "main.vars.caching.session.ttlInDays",
-              "value": "30",
-              "type": "string"
+              "value": 30,
+              "type": "number"
             },
             {
               "id": "36e1d87c-137d-4e97-9301-cc68bdf77646",
               "name": "main.vars.caching.session.contextLength",
-              "value": "3",
-              "type": "string"
+              "value": 3,
+              "type": "number"
             }
           ]
         },
