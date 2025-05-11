@@ -105,7 +105,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const result = $input.all().map(item => {\n  const workflowJson = item.json;\n\n  if (workflowJson.name === 'Main') {\n    const secretVars = ['main.vars.invoice.customSheetId', 'main.vars.invoice.payerName', 'main.vars.ai.google.apiKey'];\n    const globalVarsIndex = workflowJson.nodes.findIndex(n => n.name === 'setGlobalVars');\n\n    secretVars.forEach(s => {\n      const index = workflowJson.nodes[globalVarsIndex].parameters.assignments.assignments.findIndex(p => p.name === s);\n      workflowJson.nodes[globalVarsIndex].parameters.assignments.assignments[index].value = \"\";\n    });\n\n    const telegramTriggerIndex = workflowJson.nodes.findIndex(n => n.name === 'Telegram Trigger');\n    workflowJson.nodes[telegramTriggerIndex].parameters.additionalFields.userIds = \"<TBD>\";\n  }\n\n  if (workflowJson.pinData == null) workflowJson.pinData = {};\n  delete workflowJson.updatedAt;\n  delete workflowJson.versionId;\n  \n  return {\n    json: workflowJson\n  };\n});\n\nreturn result;"
+        "jsCode": "const result = $input.all().map(item => {\n  const workflowJson = item.json;\n\n  if (workflowJson.pinData == null) workflowJson.pinData = {};\n  delete workflowJson.updatedAt;\n  delete workflowJson.versionId;\n\n  if (workflowJson.name === 'Main') {\n    const secretVars = ['main.vars.invoice.customSheetId', 'main.vars.invoice.payerName', 'main.vars.ai.google.apiKey'];\n    const globalVarsIndex = workflowJson.nodes.findIndex(n => n.name === 'setGlobalVars');\n\n    secretVars.forEach(s => {\n      const index = workflowJson.nodes[globalVarsIndex].parameters.assignments.assignments.findIndex(p => p.name === s);\n      workflowJson.nodes[globalVarsIndex].parameters.assignments.assignments[index].value = \"\";\n    });  \n  }\n\n  if (workflowJson.name === 'MainTrigger') {\n    const telegramTriggerIndex = workflowJson.nodes.findIndex(n => n.name === 'Telegram Trigger');\n    workflowJson.nodes[telegramTriggerIndex].parameters.additionalFields.userIds = \"<TBD>\";\n  }\n  \n  return {\n    json: workflowJson\n  };\n});\n\nreturn result;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -195,7 +195,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "d1180517-c4b4-4c91-87b4-b85a3d2efeec",
+  "versionId": "b1b5f2bf-5f18-473f-98c7-a2e167450dba",
   "meta": {
     "instanceId": "f8b130448b1247cfa7a04d0efa3978094ff6ffdc49aa0211b08d8d57e7730660"
   },
