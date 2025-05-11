@@ -2,7 +2,7 @@
   "createdAt": "2025-05-06T04:58:38.481Z",
   "id": "I9QOZh143ODMefSC",
   "name": "Main",
-  "active": true,
+  "active": false,
   "nodes": [
     {
       "parameters": {
@@ -77,197 +77,6 @@
       ],
       "id": "56c1fc4f-1aac-4e4d-9344-f004ab52b4f0",
       "name": "hasData"
-    },
-    {
-      "parameters": {
-        "trigger": [
-          "app_mention"
-        ],
-        "watchWorkspace": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.slackTrigger",
-      "typeVersion": 1,
-      "position": [
-        -2460,
-        900
-      ],
-      "id": "8a703157-0207-4fd8-a2cc-33144c935b1a",
-      "name": "Slack Trigger",
-      "webhookId": "e46f4300-9188-4fbe-a7c0-ae088fb645c1",
-      "credentials": {
-        "slackApi": {
-          "id": "nq9l1vLjoG9bmDhB",
-          "name": "Slack account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {
-          "userIds": "<TBD>"
-        }
-      },
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        -2460,
-        1420
-      ],
-      "id": "5a397500-1d51-4fe5-ac89-209e04aa0144",
-      "name": "Telegram Trigger",
-      "webhookId": "a59684e2-65bd-4048-b76f-093a1971516d",
-      "credentials": {
-        "telegramApi": {
-          "id": "yF5Q4queu1lhvJeB",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "ebbe3bd4-6cad-49c0-b544-60dda6c1c14d",
-              "name": "main.data.message.text",
-              "value": "={{ $json.message.text || $json.message.caption || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "210c0276-3ce9-4db5-9bc8-6da82ae79f30",
-              "name": "main.data.image.id",
-              "value": "={{ $json.message.photo && $json.message.photo.at(-1).file_id || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "14cbafb0-b192-443e-b2d7-51429038ec81",
-              "name": "main.data.audio.id",
-              "value": "={{ $json.message.voice && $json.message.voice.file_id || $json.message.audio && $json.message.audio.file_id || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "35aa75fa-a216-4c57-b5f6-c3db0a803a15",
-              "name": "main.data.video.id",
-              "value": "={{ $json.message.video && $json.message.video.file_id || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "7c3d738e-cb46-4f14-a0b8-c3df7e3c5ea3",
-              "name": "main.data.document.id",
-              "value": "={{ $json.message.document && $json.message.document.file_id || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "514f5b4e-37e6-45a4-9f5d-db8965a7c02d",
-              "name": "main.app.type",
-              "value": "telegram",
-              "type": "string"
-            },
-            {
-              "id": "9045ad95-9bfa-4357-af97-c09f6843312e",
-              "name": "main.app.chatId",
-              "value": "={{ $json.message.chat.id }}",
-              "type": "string"
-            },
-            {
-              "id": "2b48f9da-df51-4c62-b288-50387f9d1e68",
-              "name": "main.app.messageId",
-              "value": "={{ $json.message.message_id }}",
-              "type": "string"
-            },
-            {
-              "id": "418f4d21-6359-48f4-856f-251654f5f370",
-              "name": "main.app.sessionId",
-              "value": "=telegram_{{ $json.message.chat.id }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -2160,
-        1420
-      ],
-      "id": "cb2b8a99-a651-461d-a7bc-8e30cb90e1ee",
-      "name": "normalizeTelegramData"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "ebbe3bd4-6cad-49c0-b544-60dda6c1c14d",
-              "name": "main.data.message.text",
-              "value": "={{ $json.text.replace(/^<@\\w+>/, '').trim() }}",
-              "type": "string"
-            },
-            {
-              "id": "210c0276-3ce9-4db5-9bc8-6da82ae79f30",
-              "name": "main.data.image.id",
-              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('image') && $json.files[0].url_private_download || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "a889fab8-c450-436b-951e-639cb60f902f",
-              "name": "main.data.audio.id",
-              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('audio') && $json.files[0].url_private_download || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "c03bdf4f-2fd0-458a-b241-d0a6bdda956e",
-              "name": "main.data.video.id",
-              "value": "={{ $json.files && $json.files[0].mimetype.startsWith('video') && $json.files[0].url_private_download || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "f5297ee1-b31d-48e9-9661-cdd9e9ed0c56",
-              "name": "main.data.document.id",
-              "value": "={{ $json.files && $json.files[0].url_private_download || \"\" }}",
-              "type": "string"
-            },
-            {
-              "id": "514f5b4e-37e6-45a4-9f5d-db8965a7c02d",
-              "name": "main.app.type",
-              "value": "slack",
-              "type": "string"
-            },
-            {
-              "id": "9045ad95-9bfa-4357-af97-c09f6843312e",
-              "name": "main.app.channelId",
-              "value": "={{ $json.channel }}",
-              "type": "string"
-            },
-            {
-              "id": "31560e38-0a7a-4b7c-820c-424cbcf19736",
-              "name": "main.app.eventTime",
-              "value": "={{ $json.event_ts }}",
-              "type": "string"
-            },
-            {
-              "id": "aa1ca29a-5eb8-414b-9c37-61546fed07ab",
-              "name": "main.app.sessionId",
-              "value": "=slack_{{ $json.channel }}_{{ $json.user }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -2160,
-        900
-      ],
-      "id": "b68b8fb2-9bb0-44d5-a417-c797e058f308",
-      "name": "normalizeSlackData"
     },
     {
       "parameters": {
@@ -448,40 +257,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "274efe30-d0ad-48d0-80da-abff1fa011ad",
-              "leftValue": "={{ $json.main.data.message.text }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1160,
-        1180
-      ],
-      "id": "5a05921c-c6f5-4ddc-ae65-ca2f7965d59a",
-      "name": "hasMessage"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "mKfGnRt4PY6wMSJV",
@@ -537,46 +312,6 @@
       ],
       "id": "bffda710-8d13-454b-8643-21bc6fb37ac7",
       "name": "execImageClassifier"
-    },
-    {
-      "parameters": {
-        "inputText": "={{ $json.main.data.message.text }}",
-        "categories": {
-          "categories": [
-            {
-              "category": "image",
-              "description": "={{ $json.main.vars.messageClassifier.description.image }}"
-            },
-            {
-              "category": "audio",
-              "description": "={{ $json.main.vars.messageClassifier.description.audio }}"
-            },
-            {
-              "category": "video",
-              "description": "={{ $json.main.vars.messageClassifier.description.video }}"
-            },
-            {
-              "category": "document",
-              "description": "={{ $json.main.vars.messageClassifier.description.document }}"
-            },
-            {
-              "category": "general",
-              "description": "={{ $json.main.vars.messageClassifier.description.general }}"
-            }
-          ]
-        },
-        "options": {
-          "enableAutoFixing": true
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.textClassifier",
-      "typeVersion": 1,
-      "position": [
-        1540,
-        880
-      ],
-      "id": "b3fbb6da-86cc-4b20-b045-bf0aa517d88c",
-      "name": "Message Classifier"
     },
     {
       "parameters": {
@@ -755,8 +490,8 @@
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        -2460,
-        400
+        -2260,
+        1900
       ],
       "id": "da8ead9b-df6b-4d35-a37d-e55eac22f377",
       "name": "Error Trigger"
@@ -774,8 +509,8 @@
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        -2160,
-        260
+        -1960,
+        1760
       ],
       "id": "497eedf6-fee0-416c-be2c-3d237c94ad73",
       "name": "n8n",
@@ -795,8 +530,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        -1500,
-        380
+        -1280,
+        1880
       ],
       "id": "d4583166-dfbb-498d-a7a2-3dcc41715fe4",
       "name": "Merge"
@@ -813,8 +548,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -900,
-        520
+        -680,
+        2020
       ],
       "id": "1e367133-0f72-44a3-8821-e2b4496be5a9",
       "name": "Telegram",
@@ -849,8 +584,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1980,
-        400
+        -1760,
+        1900
       ],
       "id": "9a7e5323-0b0d-4fd8-9b59-26565f7b9dc5",
       "name": "setErrorMessage"
@@ -872,8 +607,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1800,
-        260
+        -1580,
+        1760
       ],
       "id": "c9ad9063-5065-4b19-b406-32c25bfaa47b",
       "name": "getAppInfo"
@@ -900,8 +635,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        -900,
-        240
+        -680,
+        1740
       ],
       "id": "828978df-3455-4a7c-ab96-0ca6c96f8cca",
       "name": "Slack",
@@ -976,8 +711,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1200,
-        380
+        -980,
+        1880
       ],
       "id": "324b5d7d-f1f0-4c87-b9fb-0d6e1b6c4b8f",
       "name": "appRule"
@@ -1151,7 +886,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2440,
+        2580,
         900
       ],
       "id": "19dfd248-3735-4f9f-accf-d6840f2b0886",
@@ -1251,32 +986,6 @@
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "c08ef6b1-7f5a-4072-b674-1019ddb4f16e",
-              "name": "main.data.message.text",
-              "value": "={{ $json.main.output.text }}",
-              "type": "string"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {
-          "stripBinary": true
-        }
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        2140,
-        1600
-      ],
-      "id": "c8b875be-5fdd-4a99-b01a-6a0dd1087330",
-      "name": "setMessage"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "ucfxzgiNtrGcHofY",
@@ -1332,6 +1041,144 @@
       ],
       "id": "4d2b222b-bf7f-40d6-99df-f0a264607059",
       "name": "execDocumentTask"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2260,
+        920
+      ],
+      "id": "66be7b83-5106-4241-ba9a-56f5b495066a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "queue": "n8n",
+        "options": {
+          "assertQueue": true,
+          "acknowledge": "immediately",
+          "jsonParseBody": true,
+          "onlyContent": true
+        }
+      },
+      "type": "n8n-nodes-base.rabbitmqTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2260,
+        1400
+      ],
+      "id": "9a1ada83-a38b-4630-bf7d-811962b30a3e",
+      "name": "RabbitMQ Trigger",
+      "credentials": {
+        "rabbitmq": {
+          "id": "fXT7VW6i8YbBQRI0",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "274efe30-d0ad-48d0-80da-abff1fa011ad",
+              "leftValue": "={{ $json.main.data.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1160,
+        1180
+      ],
+      "id": "5a05921c-c6f5-4ddc-ae65-ca2f7965d59a",
+      "name": "hasText"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c08ef6b1-7f5a-4072-b674-1019ddb4f16e",
+              "name": "main.data.message.text",
+              "value": "={{ $json.main.output.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "stripBinary": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2140,
+        1600
+      ],
+      "id": "c8b875be-5fdd-4a99-b01a-6a0dd1087330",
+      "name": "setText"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.main.data.message.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "image",
+              "description": "={{ $json.main.vars.messageClassifier.description.image }}"
+            },
+            {
+              "category": "audio",
+              "description": "={{ $json.main.vars.messageClassifier.description.audio }}"
+            },
+            {
+              "category": "video",
+              "description": "={{ $json.main.vars.messageClassifier.description.video }}"
+            },
+            {
+              "category": "document",
+              "description": "={{ $json.main.vars.messageClassifier.description.document }}"
+            },
+            {
+              "category": "general",
+              "description": "={{ $json.main.vars.messageClassifier.description.general }}"
+            }
+          ]
+        },
+        "options": {
+          "enableAutoFixing": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        880
+      ],
+      "id": "b3fbb6da-86cc-4b20-b045-bf0aa517d88c",
+      "name": "Text Classifier"
     }
   ],
   "connections": {
@@ -1351,50 +1198,6 @@
         ]
       ]
     },
-    "Slack Trigger": {
-      "main": [
-        [
-          {
-            "node": "normalizeSlackData",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Telegram Trigger": {
-      "main": [
-        [
-          {
-            "node": "normalizeTelegramData",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "normalizeTelegramData": {
-      "main": [
-        [
-          {
-            "node": "setGlobalVars",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "normalizeSlackData": {
-      "main": [
-        [
-          {
-            "node": "setGlobalVars",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "hasFile": {
       "main": [
         [
@@ -1406,7 +1209,7 @@
         ],
         [
           {
-            "node": "hasMessage",
+            "node": "hasText",
             "type": "main",
             "index": 0
           }
@@ -1442,24 +1245,6 @@
         ]
       ]
     },
-    "hasMessage": {
-      "main": [
-        [
-          {
-            "node": "Message Classifier",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "fileTypeRule",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "execFileProcessor": {
       "main": [
         [
@@ -1476,45 +1261,6 @@
         [
           {
             "node": "imageCategoryRule",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Message Classifier": {
-      "main": [
-        [
-          {
-            "node": "execImageGenTask",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "execAudioTask",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "execVideoTask",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "execDocumentTask",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "execGeneralTask",
             "type": "main",
             "index": 0
           }
@@ -1614,7 +1360,7 @@
       "ai_languageModel": [
         [
           {
-            "node": "Message Classifier",
+            "node": "Text Classifier",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -1636,7 +1382,7 @@
       "main": [
         [
           {
-            "node": "setMessage",
+            "node": "setText",
             "type": "main",
             "index": 0
           }
@@ -1680,7 +1426,7 @@
       "main": [
         [
           {
-            "node": "hasMessage",
+            "node": "hasText",
             "type": "main",
             "index": 0
           }
@@ -1694,22 +1440,11 @@
         ]
       ]
     },
-    "setMessage": {
-      "main": [
-        [
-          {
-            "node": "hasMessage",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "execFileUploader": {
       "main": [
         [
           {
-            "node": "hasMessage",
+            "node": "hasText",
             "type": "main",
             "index": 0
           }
@@ -1726,14 +1461,106 @@
           }
         ]
       ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "setGlobalVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RabbitMQ Trigger": {
+      "main": [
+        [
+          {
+            "node": "setGlobalVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hasText": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "fileTypeRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setText": {
+      "main": [
+        [
+          {
+            "node": "hasText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "execImageGenTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execAudioTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execVideoTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execDocumentTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execGeneralTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1"
   },
   "staticData": null,
-  "meta": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
   "pinData": {},
-  "triggerCount": 2,
+  "triggerCount": 1,
   "tags": []
 }
