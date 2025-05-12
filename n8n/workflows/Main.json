@@ -238,6 +238,31 @@
               },
               "renameOutput": true,
               "outputKey": "invoice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "06931ffc-1747-403b-8a68-30c0d1f74b5b",
+                    "leftValue": "={{ $json.main.data.image.category }}",
+                    "rightValue": "accounting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "accounting"
             }
           ]
         },
@@ -365,8 +390,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2440,
-        1320
+        2580,
+        1180
       ],
       "id": "c69a1cd5-7586-4bc0-9ea3-9d78c79580ca",
       "name": "execInvoiceTask"
@@ -730,7 +755,7 @@
             {
               "id": "7507872f-9b80-4515-847e-39c24a9c5515",
               "name": "main.vars.invoice.extractor.prompt",
-              "value": "Extract information from the invoice image and format the output as <total/amount due with tip included> -- <store name> -- <billing date converted to MM/dd/yyyy HH:mm format>",
+              "value": "Extract information from the invoice image and format the output as (N/A if the field is not available or empty)\n<total/amount due with tip included> -- <store name> -- <billing date converted to MM/dd/yyyy HH:mm format>",
               "type": "string"
             },
             {
@@ -808,7 +833,7 @@
             {
               "id": "f1bed9ac-4f76-4702-90cc-c29317fc40ef",
               "name": "main.vars.imageClassifier.prompt",
-              "value": "Classify the image below into one of the following categories and format the output as only <category name>\n- invoice: image in which invoices are the primary objects\n- general: images that do not belong to any specific category",
+              "value": "Classify the image below into one of the following categories and format the output as only <category name>\n- invoice: image in which invoices are the primary objects\n- accounting: image in which invoices or orders (or both) in Vietnamese are the primary objects\n- general: images that do not belong to any specific category",
               "type": "string"
             },
             {
@@ -944,7 +969,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2440,
+        2580,
         300
       ],
       "id": "2bbddc3e-4510-4cad-99cb-b43ca48b6750",
@@ -1179,6 +1204,35 @@
       ],
       "id": "b3fbb6da-86cc-4b20-b045-bf0aa517d88c",
       "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KCXfXlQISQRIQTXB",
+          "mode": "list",
+          "cachedResultName": "AccountingTask"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2580,
+        1460
+      ],
+      "id": "cd5d2c28-8e62-4edc-866b-920fbf2e3eef",
+      "name": "execAccountingTask"
     }
   ],
   "connections": {
@@ -1239,6 +1293,13 @@
         [
           {
             "node": "execInvoiceTask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "execAccountingTask",
             "type": "main",
             "index": 0
           }
