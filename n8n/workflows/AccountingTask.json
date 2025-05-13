@@ -226,7 +226,7 @@
       "typeVersion": 1.2,
       "position": [
         1240,
-        400
+        600
       ],
       "id": "5e0d4cf8-f6c3-4bde-bf41-3af8a846e1ad",
       "name": "Telegram1",
@@ -245,13 +245,13 @@
         "message": "=🧾\n{{ $json.output }}",
         "approvalOptions": {
           "values": {
-            "approvalType": "double"
+            "approveLabel": "❌ Decline"
           }
         },
         "options": {
           "limitWaitTime": {
             "values": {
-              "resumeAmount": 3,
+              "resumeAmount": 0.25,
               "resumeUnit": "minutes"
             }
           },
@@ -288,7 +288,7 @@
       "typeVersion": 1.2,
       "position": [
         -260,
-        600
+        400
       ],
       "id": "278d8a79-8e27-421e-ae91-ca0f77455a45",
       "name": "Telegram2",
@@ -392,7 +392,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order code> | <order date converted to dd/MM/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded>\nInvoice: <invoice number> | <invoice date converted to dd/MM/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price or N/A if the field is empty>",
+        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number> | <order date converted to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded>\nInvoice: <invoice number> | <invoice date converted to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
         "options": {
           "passthroughBinaryImages": true
         }
@@ -408,13 +408,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const codeMap = {\n  '1L'   : 'TP001',\n  '2L'   : 'TP002',\n  '5L'   : 'TP003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = $('Merge').first().json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        type: unitPrice === 'N/A' ? 'KM' : 'Bán',\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice === 'N/A' ? '' : unitPrice,\n      };\n    })\n    .forEach(i => items.push(i));\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'dd/MM/yyyy') : DateTime.fromFormat(invoiceDate, 'dd/MM/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
+        "jsCode": "const codeMap = {\n  '1L'   : 'TP0001',\n  '2L'   : 'TP0002',\n  '5L'   : 'TP0003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = $('Merge').first().json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && !line.trim().endsWith('N/A'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        optName: '',\n        optCode: '',\n        optQuantity: '',\n      };\n    })\n    .forEach(i => items.push(i));\n\n  var i = 0;\n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && line.trim().endsWith('N/A'))\n    .forEach(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      items[i].optName = name;\n      items[i].optCode = code;\n      items[i].optQuantity = quantity;\n\n      ++i;\n    });\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'MM/dd/yyyy') : DateTime.fromFormat(invoiceDate, 'MM/dd/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -260,
-        400
+        600
       ],
       "id": "3d6deffd-f74e-4342-87dd-e1a883b480df",
       "name": "parseInvoiceInfo",
@@ -452,7 +452,7 @@
       "typeVersion": 4.5,
       "position": [
         340,
-        200
+        400
       ],
       "id": "233b7787-42b7-4f2b-b105-3036ad11a768",
       "name": "createSheet",
@@ -463,6 +463,104 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        940,
+        580
+      ],
+      "id": "bdf09d7c-e049-492e-8d70-8d7fdcd2da6a",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "306177ba-44d3-46a8-ba46-ddcc2e2b9501",
+              "name": "Customer",
+              "value": "={{ $json.output.invoice.customer }}",
+              "type": "string"
+            },
+            {
+              "id": "bfc69c18-460b-4355-8999-477efd8e8b2c",
+              "name": "Order Date",
+              "value": "={{ $json.output.order.date }}",
+              "type": "string"
+            },
+            {
+              "id": "761bb2fc-d28d-4729-bbb0-68453679d1e1",
+              "name": "Order",
+              "value": "={{ $json.output.order.code }}",
+              "type": "string"
+            },
+            {
+              "id": "649ec9d6-23dd-430f-9def-d6377e9e1e2a",
+              "name": "PO Code",
+              "value": "={{ $json.output.order.po }}",
+              "type": "string"
+            },
+            {
+              "id": "f968f342-f949-46e8-aae1-d22be3417ecc",
+              "name": "Invoice Date",
+              "value": "={{ $json.output.invoice.date }}",
+              "type": "string"
+            },
+            {
+              "id": "ccbd7dab-1450-4053-9f7c-3fe4952c296a",
+              "name": "Invoice",
+              "value": "={{ $json.output.invoice.code }}",
+              "type": "string"
+            },
+            {
+              "id": "9f48bd32-e2fb-48f2-8cb8-c7c81a86e316",
+              "name": "Code",
+              "value": "={{ $json.item.code }}",
+              "type": "string"
+            },
+            {
+              "id": "f1e7baec-7315-414c-9966-777c721c787d",
+              "name": "Quantity",
+              "value": "={{ $json.item.quantity }}",
+              "type": "string"
+            },
+            {
+              "id": "6335b527-d8a1-4518-ae44-266f8c438c35",
+              "name": "Unit Price",
+              "value": "={{ $json.item.unitPrice }}",
+              "type": "string"
+            },
+            {
+              "id": "84fd223e-b07a-4032-8047-1f12fe3a6d29",
+              "name": "KM Code",
+              "value": "={{ $json.item.optCode }}",
+              "type": "string"
+            },
+            {
+              "id": "fc05b53a-e09d-46ee-9618-18fbb40d7020",
+              "name": "KM Quantity",
+              "value": "={{ $json.item.optQuantity }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        600
+      ],
+      "id": "40561415-206f-43d8-9956-9a1e00054c13",
+      "name": "setItemData"
     },
     {
       "parameters": {
@@ -494,172 +592,16 @@
       "typeVersion": 4.5,
       "position": [
         640,
-        400
+        600
       ],
       "id": "f8632f3a-c97e-44f2-8ae3-83f9be2add53",
-      "name": "appendInvoiceToSheet",
+      "name": "appendItemToSheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "QPWCBEBd1gVee3YC",
           "name": "Google Sheets account"
         }
       }
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1WgGnaWc2vrYeVhJMLS6wGLr62_LaTs5K1XYMlbKHu64",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "={{ $('parseInvoiceInfo').item.json.output.sheet }}",
-          "mode": "name"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {
-          "useAppend": true
-        }
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
-      "position": [
-        640,
-        600
-      ],
-      "id": "df38485a-1b1d-454c-b129-219f2e34eca3",
-      "name": "appendItemsToSheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "QPWCBEBd1gVee3YC",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "numberInputs": 3,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.1,
-      "position": [
-        940,
-        400
-      ],
-      "id": "bdf09d7c-e049-492e-8d70-8d7fdcd2da6a",
-      "name": "Merge1"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "306177ba-44d3-46a8-ba46-ddcc2e2b9501",
-              "name": "Customer",
-              "value": "={{ $json.output.invoice.customer }}",
-              "type": "string"
-            },
-            {
-              "id": "761bb2fc-d28d-4729-bbb0-68453679d1e1",
-              "name": "Order",
-              "value": "={{ $json.output.order.code }}",
-              "type": "string"
-            },
-            {
-              "id": "649ec9d6-23dd-430f-9def-d6377e9e1e2a",
-              "name": "PO Code",
-              "value": "={{ $json.output.order.po }}",
-              "type": "string"
-            },
-            {
-              "id": "bfc69c18-460b-4355-8999-477efd8e8b2c",
-              "name": "Order Date",
-              "value": "={{ $json.output.order.date }}",
-              "type": "string"
-            },
-            {
-              "id": "ccbd7dab-1450-4053-9f7c-3fe4952c296a",
-              "name": "Invoice",
-              "value": "={{ $json.output.invoice.code }}",
-              "type": "string"
-            },
-            {
-              "id": "f968f342-f949-46e8-aae1-d22be3417ecc",
-              "name": "Invoice Date",
-              "value": "={{ $json.output.invoice.date }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        40,
-        400
-      ],
-      "id": "40561415-206f-43d8-9956-9a1e00054c13",
-      "name": "setInvoiceData"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "3e2920f6-c841-4119-acfe-08c8165deb65",
-              "name": "Type",
-              "value": "={{ $json.item.type }}",
-              "type": "string"
-            },
-            {
-              "id": "06a23a5d-ec7b-4f84-b7ae-4493f73db747",
-              "name": "Name",
-              "value": "={{ $json.item.name }}",
-              "type": "string"
-            },
-            {
-              "id": "4b432f3e-37fe-4ec1-8339-c0b348c83061",
-              "name": "Code",
-              "value": "={{ $json.item.code }}",
-              "type": "string"
-            },
-            {
-              "id": "da362018-3719-4e78-995c-ff3b8de8eb78",
-              "name": "Quantity",
-              "value": "={{ $json.item.quantity }}",
-              "type": "string"
-            },
-            {
-              "id": "1e046ddf-c75e-4a31-9e39-6b881986d908",
-              "name": "Unit Price",
-              "value": "={{ $json.item.unitPrice }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        340,
-        600
-      ],
-      "id": "041e2e66-1719-4fc8-9c22-87d0786aa54a",
-      "name": "setItemData"
     }
   ],
   "connections": {
@@ -723,14 +665,14 @@
       "main": [
         [
           {
-            "node": "parseInvoiceInfo",
+            "node": "Telegram2",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Telegram2",
+            "node": "parseInvoiceInfo",
             "type": "main",
             "index": 0
           }
@@ -797,11 +739,6 @@
             "index": 0
           },
           {
-            "node": "setInvoiceData",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "splitItems",
             "type": "main",
             "index": 0
@@ -831,28 +768,6 @@
         ]
       ]
     },
-    "appendInvoiceToSheet": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "appendItemsToSheet": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
     "Merge1": {
       "main": [
         [
@@ -864,24 +779,24 @@
         ]
       ]
     },
-    "setInvoiceData": {
+    "setItemData": {
       "main": [
         [
           {
-            "node": "appendInvoiceToSheet",
+            "node": "appendItemToSheet",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "setItemData": {
+    "appendItemToSheet": {
       "main": [
         [
           {
-            "node": "appendItemsToSheet",
+            "node": "Merge1",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
