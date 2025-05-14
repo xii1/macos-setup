@@ -392,7 +392,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number> | <order date converted to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded>\nInvoice: <invoice number> | <invoice date converted to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
+        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number> | <order or document date converted from dd/MM/yyyy to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded or related to PO number>\nInvoice: <invoice number> | <invoice date converted from dd/MM/yyyy to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
         "options": {
           "passthroughBinaryImages": true
         }
