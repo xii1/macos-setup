@@ -110,6 +110,12 @@
               "name": "main.app.sessionId",
               "value": "=telegram_{{ $json.message.chat.id }}",
               "type": "string"
+            },
+            {
+              "id": "45095f13-333f-4587-8ed4-e6ad3338ccfb",
+              "name": "main.app.mediaGroupSessionId",
+              "value": "=telegram_{{ $json.message.chat.id }}_{{ $json.message.media_group_id }}",
+              "type": "string"
             }
           ]
         },
