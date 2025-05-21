@@ -39,7 +39,10 @@ brew install apache-spark
 brew install apache-flink
 
 brew install python
-brew install node
+
+# NodeJS
+# install NVM https://github.com/nvm-sh/nvm
+nvm install --lts
 
 # docker & k8s
 brew install podman
