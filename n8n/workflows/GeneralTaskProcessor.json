@@ -3,6 +3,7 @@
   "id": "eh0L2uHbJBJEBz1e",
   "name": "GeneralTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

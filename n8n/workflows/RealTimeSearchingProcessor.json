@@ -3,6 +3,7 @@
   "id": "5MM5xbvCgBjD1pNd",
   "name": "RealTimeSearchingProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

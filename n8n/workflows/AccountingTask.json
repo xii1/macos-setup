@@ -3,6 +3,7 @@
   "id": "KCXfXlQISQRIQTXB",
   "name": "AccountingTask",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

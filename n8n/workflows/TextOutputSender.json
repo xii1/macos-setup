@@ -3,6 +3,7 @@
   "id": "W6WGXKzY8msjzwGq",
   "name": "TextOutputSender",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

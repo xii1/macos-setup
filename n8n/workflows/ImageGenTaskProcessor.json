@@ -3,6 +3,7 @@
   "id": "MqLt7E5kTkpGq0sV",
   "name": "ImageGenTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

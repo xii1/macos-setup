@@ -3,6 +3,7 @@
   "id": "I9QOZh143ODMefSC",
   "name": "Main",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

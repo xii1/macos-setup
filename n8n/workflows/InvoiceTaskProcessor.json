@@ -3,6 +3,7 @@
   "id": "UOp8OYYUsgFFxyrd",
   "name": "InvoiceTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

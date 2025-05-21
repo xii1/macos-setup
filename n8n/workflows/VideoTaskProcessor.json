@@ -3,6 +3,7 @@
   "id": "jRNEjIr93mq72LZQ",
   "name": "VideoTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

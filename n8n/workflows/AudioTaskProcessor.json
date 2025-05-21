@@ -3,6 +3,7 @@
   "id": "amYFvGc8SzZ4jOqL",
   "name": "AudioTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

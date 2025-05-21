@@ -3,6 +3,7 @@
   "id": "rkSFtHz6OcQpxRRc",
   "name": "MainTrigger",
   "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

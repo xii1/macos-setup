@@ -3,6 +3,7 @@
   "id": "YFb69LzgTmjcYFOY",
   "name": "ImageClassifier",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

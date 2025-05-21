@@ -3,6 +3,7 @@
   "id": "H1jqqYTpmATELX14",
   "name": "ImageOutputSender",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

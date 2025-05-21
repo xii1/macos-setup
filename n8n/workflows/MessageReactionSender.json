@@ -3,6 +3,7 @@
   "id": "7agNGztp1g23PKQn",
   "name": "MessageReactionSender",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

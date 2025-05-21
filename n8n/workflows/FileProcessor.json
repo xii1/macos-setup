@@ -3,6 +3,7 @@
   "id": "mKfGnRt4PY6wMSJV",
   "name": "FileProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

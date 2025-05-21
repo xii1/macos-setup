@@ -3,6 +3,7 @@
   "id": "UX5De3E79L3FbkxJ",
   "name": "DocumentTaskProcessor",
   "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {

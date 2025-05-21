@@ -3,6 +3,7 @@
   "id": "WsNQgyJ6I34AJ9UG",
   "name": "N8NUpgradeScheduler",
   "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -34,7 +35,8 @@
         0
       ],
       "id": "061cb4fe-fcbd-4c6b-ae89-c5f4784c11fc",
-      "name": "upgrade"
+      "name": "upgrade",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -47,7 +49,8 @@
         0
       ],
       "id": "e930ee81-a4de-4a52-8d30-cfeb2a547c45",
-      "name": "restart"
+      "name": "restart",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -75,7 +78,8 @@
         -220
       ],
       "id": "1176c23a-bc50-4633-bbd8-f619aa59847b",
-      "name": "Execute Command"
+      "name": "Execute Command",
+      "retryOnFail": true
     },
     {
       "parameters": {
