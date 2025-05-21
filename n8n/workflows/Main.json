@@ -773,7 +773,7 @@
             {
               "id": "3d46cce3-56cf-430e-9978-746a1790c252",
               "name": "main.vars.ai.google.generalModel",
-              "value": "gemini-2.5-flash-preview-04-17",
+              "value": "gemini-2.5-flash-preview-05-20",
               "type": "string"
             },
             {

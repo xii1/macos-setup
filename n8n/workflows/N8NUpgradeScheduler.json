@@ -25,7 +25,7 @@
     },
     {
       "parameters": {
-        "command": "npm install -g n8n@lastest"
+        "command": "npm update -g n8n"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
