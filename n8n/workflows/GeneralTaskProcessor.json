@@ -21,7 +21,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.main.data.message.text || $json.main.output.text }}",
+        "text": "={{ $json.main.data.message.text }}",
         "options": {
           "passthroughBinaryImages": true
         }

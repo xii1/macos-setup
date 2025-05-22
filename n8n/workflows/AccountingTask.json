@@ -226,7 +226,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2440,
+        2740,
         460
       ],
       "id": "5e0d4cf8-f6c3-4bde-bf41-3af8a846e1ad",
@@ -453,7 +453,7 @@
       "typeVersion": 4.5,
       "position": [
         1540,
-        260
+        240
       ],
       "id": "233b7787-42b7-4f2b-b105-3036ad11a768",
       "name": "createSheet",
@@ -474,7 +474,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        2140,
+        2440,
         440
       ],
       "id": "bdf09d7c-e049-492e-8d70-8d7fdcd2da6a",
@@ -711,6 +711,157 @@
       ],
       "id": "89961555-b63e-4a04-8cb6-ffa72b093869",
       "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WgGnaWc2vrYeVhJMLS6wGLr62_LaTs5K1XYMlbKHu64",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('parseInvoiceInfo').item.json.output.sheet }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer": "---"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order Date",
+              "displayName": "Order Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Order",
+              "displayName": "Order",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "PO Code",
+              "displayName": "PO Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Invoice",
+              "displayName": "Invoice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Code",
+              "displayName": "Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Unit Price",
+              "displayName": "Unit Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "KM Code",
+              "displayName": "KM Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "KM Quantity",
+              "displayName": "KM Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2140,
+        460
+      ],
+      "id": "02387374-c1da-4e39-b4f8-8b67dc7c1148",
+      "name": "addEmptyRow",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QPWCBEBd1gVee3YC",
+          "name": "Google Sheets account"
+        }
+      }
     }
   ],
   "connections": {
@@ -908,9 +1059,9 @@
       "main": [
         [
           {
-            "node": "Merge1",
+            "node": "addEmptyRow",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -967,6 +1118,17 @@
             "node": "parseInvoiceInfo",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "addEmptyRow": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
