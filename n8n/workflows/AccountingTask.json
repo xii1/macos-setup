@@ -207,7 +207,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -560,
+        -260,
         500
       ],
       "id": "f845dcca-081c-43c8-81ec-98a70cf198a2",
@@ -226,7 +226,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2740,
+        3040,
         460
       ],
       "id": "5e0d4cf8-f6c3-4bde-bf41-3af8a846e1ad",
@@ -252,7 +252,7 @@
         "options": {
           "limitWaitTime": {
             "values": {
-              "resumeAmount": "={{ $json.main.app.messageId % 2  }}",
+              "resumeAmount": 0,
               "resumeUnit": "minutes"
             }
           },
@@ -288,7 +288,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -260,
+        40,
         340
       ],
       "id": "278d8a79-8e27-421e-ae91-ca0f77455a45",
@@ -393,7 +393,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number code> | <order date converted from dd/MM/yyyy to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded or related to PO number>\nInvoice: <invoice number code> | <invoice date converted from dd/MM/yyyy to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
+        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number without PO number> | <order date converted from dd/MM/yyyy to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded or related to PO number> | <address of customer>\nInvoice: <invoice number> | <invoice date converted from dd/MM/yyyy to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
         "options": {
           "passthroughBinaryImages": true
         }
@@ -409,12 +409,12 @@
     },
     {
       "parameters": {
-        "jsCode": "const codeMap = {\n  '1L'   : 'TP0001',\n  '2L'   : 'TP0002',\n  '5L'   : 'TP0003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = item.json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && !line.trim().endsWith('N/A'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        optName: '',\n        optCode: '',\n        optQuantity: '',\n      };\n    })\n    .forEach(i => items.push(i));\n\n  var i = 0;\n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && line.trim().endsWith('N/A'))\n    .forEach(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      items[i].optName = name;\n      items[i].optCode = code;\n      items[i].optQuantity = quantity;\n\n      ++i;\n    });\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'MM/dd/yyyy') : DateTime.fromFormat(invoiceDate, 'MM/dd/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
+        "jsCode": "const codeMap = {\n  '1L'   : 'TP0001',\n  '2L'   : 'TP0002',\n  '5L'   : 'TP0003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = item.json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && !line.trim().endsWith('N/A'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        optName: '',\n        optCode: '',\n        optQuantity: '',\n      };\n    })\n    .forEach(i => items.push(i));\n\n  var i = 0;\n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && line.trim().endsWith('N/A'))\n    .forEach(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      items[i].optName = name;\n      items[i].optCode = code;\n      items[i].optQuantity = quantity;\n\n      ++i;\n    });\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode, customerAddress] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'MM/dd/yyyy') : DateTime.fromFormat(invoiceDate, 'MM/dd/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n          address: customerAddress.replaceAll(', ', ','),\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        940,
+        1240,
         460
       ],
       "id": "3d6deffd-f74e-4342-87dd-e1a883b480df",
@@ -432,7 +432,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1240,
+        1540,
         460
       ],
       "id": "d4e5c2f8-bc69-49aa-bde5-45ac035ec8ac",
@@ -452,7 +452,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        1540,
+        1840,
         240
       ],
       "id": "233b7787-42b7-4f2b-b105-3036ad11a768",
@@ -474,7 +474,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        2440,
+        2740,
         440
       ],
       "id": "bdf09d7c-e049-492e-8d70-8d7fdcd2da6a",
@@ -487,7 +487,7 @@
             {
               "id": "306177ba-44d3-46a8-ba46-ddcc2e2b9501",
               "name": "Customer",
-              "value": "={{ $json.output.invoice.customer }}",
+              "value": "={{ $json.output.invoice.customer }} ({{ $json.output.order.address }})",
               "type": "string"
             },
             {
@@ -506,6 +506,12 @@
               "id": "649ec9d6-23dd-430f-9def-d6377e9e1e2a",
               "name": "PO Code",
               "value": "={{ $json.output.order.po }}",
+              "type": "string"
+            },
+            {
+              "id": "9705bec4-c032-400a-987e-340495a6cdc0",
+              "name": "Market Code",
+              "value": "==VLOOKUP(\"{{ $json.output.order.address }}\",MARKET!$A$1:$B$500,2,TRUE)",
               "type": "string"
             },
             {
@@ -557,7 +563,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1540,
+        1840,
         460
       ],
       "id": "40561415-206f-43d8-9956-9a1e00054c13",
@@ -591,7 +597,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        1840,
+        2140,
         460
       ],
       "id": "f8632f3a-c97e-44f2-8ae3-83f9be2add53",
@@ -614,7 +620,7 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -260,
+        40,
         660
       ],
       "id": "f476d612-5115-4aa8-a2d5-1e0637e80efa",
@@ -654,7 +660,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        340,
+        640,
         580
       ],
       "id": "9b73fcf6-265a-4e16-ad5f-d39bba1f0361",
@@ -672,7 +678,7 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        640,
+        940,
         700
       ],
       "id": "2bb799ec-bac5-4e41-93b3-95b3b3c447ae",
@@ -693,7 +699,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        40,
+        340,
         580
       ],
       "id": "c645230c-1c62-4715-b334-581b898c7045",
@@ -701,12 +707,12 @@
     },
     {
       "parameters": {
-        "jsCode": "function replaceOrderLine(invoiceOutput, orderOutput) {\n  const lines = invoiceOutput.split('\\n');\n  lines[0] = orderOutput.split('\\n')[0];\n  \n  return lines.join('\\n');\n}\n\nconst result = $input.all().map(item => {\n  let invoiceOutput = item.json.output;\n  let orderOutput = item.json.cachedOutput;\n\n  if (item.json.cachedOutput.includes('Order: N/A')) {\n    invoiceOutput = item.json.cachedOutput;\n    orderOutput = item.json.output;\n  }\n\n  const combinedOuput = replaceOrderLine(invoiceOutput, orderOutput);\n\n  return {\n    json: {\n      ...item.json,\n      output: combinedOuput,\n    }\n  }\n});\n\nreturn result;"
+        "jsCode": "function replaceOrderLine(invoiceOutput, orderOutput) {\n  const lines = invoiceOutput.split('\\n');\n  lines[0] = orderOutput.split('\\n')[0];\n  \n  return lines.join('\\n');\n}\n\nconst result = $input.all().map(item => {\n  let invoiceOutput = item.json.output;\n  let orderOutput = item.json.cachedOutput;\n\n  if (item.json.output.includes('Invoice: N/A')) {\n    invoiceOutput = item.json.cachedOutput;\n    orderOutput = item.json.output;\n  }\n\n  const combinedOuput = replaceOrderLine(invoiceOutput, orderOutput);\n\n  return {\n    json: {\n      ...item.json,\n      output: combinedOuput,\n    }\n  }\n});\n\nreturn result;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        640,
+        940,
         460
       ],
       "id": "89961555-b63e-4a04-8cb6-ffa72b093869",
@@ -764,6 +770,16 @@
             {
               "id": "PO Code",
               "displayName": "PO Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Market Code",
+              "displayName": "Market Code",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -850,7 +866,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        2140,
+        2440,
         460
       ],
       "id": "02387374-c1da-4e39-b4f8-8b67dc7c1148",
@@ -862,6 +878,20 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "amount": "={{ ($json.main.app.messageId % 2) * 3  }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        500
+      ],
+      "id": "ba133846-0c2d-4dcc-b332-dab423085a35",
+      "name": "Wait",
+      "webhookId": "5ca0722c-ab1b-49de-9a62-a01216d69d76"
     }
   ],
   "connections": {
@@ -948,7 +978,7 @@
       "main": [
         [
           {
-            "node": "If1",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
@@ -1129,6 +1159,17 @@
             "node": "Merge1",
             "type": "main",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
           }
         ]
       ]

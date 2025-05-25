@@ -170,17 +170,6 @@
           "name": "Google Gemini(PaLM) Api account"
         }
       }
-    },
-    {
-      "parameters": {},
-      "type": "@n8n/n8n-nodes-langchain.toolThink",
-      "typeVersion": 1,
-      "position": [
-        780,
-        340
-      ],
-      "id": "363f6463-5171-4b44-a2fc-c52e38662a98",
-      "name": "Think"
     }
   ],
   "connections": {
@@ -255,17 +244,6 @@
           {
             "node": "General AI Agent",
             "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Think": {
-      "ai_tool": [
-        [
-          {
-            "node": "General AI Agent",
-            "type": "ai_tool",
             "index": 0
           }
         ]
