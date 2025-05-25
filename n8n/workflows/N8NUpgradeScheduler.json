@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "command": "npm update -g n8n"
+        "command": "systemd-run --user --on-active=\"15\" --setenv=PATH=\"$PATH\" bash -c 'npm install -g n8n@latest && pm2 restart n8n'"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
@@ -36,20 +36,6 @@
       ],
       "id": "061cb4fe-fcbd-4c6b-ae89-c5f4784c11fc",
       "name": "upgrade",
-      "retryOnFail": true
-    },
-    {
-      "parameters": {
-        "command": "systemd-run --user --on-active=\"15\" --setenv=PATH=\"$PATH\" pm2 restart n8n"
-      },
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
-      "position": [
-        1200,
-        0
-      ],
-      "id": "e930ee81-a4de-4a52-8d30-cfeb2a547c45",
-      "name": "restart",
       "retryOnFail": true
     },
     {
@@ -144,13 +130,7 @@
     },
     "upgrade": {
       "main": [
-        [
-          {
-            "node": "restart",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "n8n Trigger": {
