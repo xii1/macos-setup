@@ -584,7 +584,7 @@
             {
               "id": "3bf90f5c-6490-429e-933e-1f803f5f7522",
               "name": "main.vars.messageClassifier.description.document",
-              "value": "Prompts that describe, summarize, or extract structured information from document (or file) contents; analyze diagrams, charts, or tables within documents (or files); or answer questions about visual or textual elements in documents (or files)",
+              "value": "Prompts that describe, summarize, or extract structured information from document (or file) contents; analyze diagrams, charts, or tables within documents (or files); or answer questions about visual or textual elements in documents (or files), and that do not contain any links or URLs",
               "type": "string"
             },
             {
@@ -596,7 +596,7 @@
             {
               "id": "e4b137c5-817e-4db4-be6e-43fe80023427",
               "name": "main.vars.realTimeSearching.description",
-              "value": "Use this tool to search for up-to-date, real-time information or facts that may not exist in the AI model’s internal knowledge base\nCall this tool when the question involves:\n- Current events (e.g., news, trends, financial markets, sports scores...)\n- Recent updates (e.g., newly released products, recent regulations...)\n- Factual verification (e.g., confirming public figures' statements, latest statistics...)\n- Information that changes over time (e.g., date time, weather, stock prices...)\nThis tool will perform a live search using external sources and return the most relevant and accurate result\nAlways prefer this tool when you are uncertain whether your knowledge is complete or current",
+              "value": "Use this tool to search for up-to-date, real-time information or facts that may not exist in the AI model’s internal knowledge base\nCall this tool when the question involves:\n- Current events (e.g., news, trends, financial markets, sports scores...)\n- Recent updates (e.g., newly released products, recent regulations...)\n- Factual verification (e.g., confirming public figures' statements, latest statistics...)\n- Information that changes over time (e.g., date time, weather, stock prices...) or includes from any provided links or URLs\nThis tool will perform a live search using external sources and return the most relevant and accurate result\nAlways prefer this tool when you are uncertain whether your knowledge is complete or current",
               "type": "string"
             },
             {
@@ -614,7 +614,7 @@
             {
               "id": "2b7f8f5e-3994-4ef5-aec8-979477a4cc26",
               "name": "main.vars.caching.session.ttlInDays",
-              "value": 30,
+              "value": 10,
               "type": "number"
             },
             {
