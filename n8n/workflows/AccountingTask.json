@@ -409,7 +409,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const codeMap = {\n  '1L'   : 'TP0001',\n  '2L'   : 'TP0002',\n  '5L'   : 'TP0003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = item.json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && !line.trim().endsWith('N/A'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        optName: '',\n        optCode: '',\n        optQuantity: '',\n      };\n    })\n    .forEach(i => items.push(i));\n\n  var i = 0;\n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && line.trim().endsWith('N/A'))\n    .forEach(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      items[i].optName = name;\n      items[i].optCode = code;\n      items[i].optQuantity = quantity;\n\n      ++i;\n    });\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode, customerAddress] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'MM/dd/yyyy') : DateTime.fromFormat(invoiceDate, 'MM/dd/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n          address: customerAddress.replaceAll(', ', ','),\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
+        "jsCode": "const codeMap = {\n  '1L'   : 'TP0001',\n  '2L'   : 'TP0002',\n  '5L'   : 'TP0003',\n};\n\nconst result = $input.all().map(item => {\n  const items = [];\n  const lines = item.json.output.split('\\n');\n  \n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && !line.trim().endsWith('N/A'))\n    .map(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity, unitPrice] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      return {\n        name: name,\n        code: code,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        optName: '',\n        optCode: '',\n        optQuantity: '',\n      };\n    })\n    .forEach(i => items.push(i));\n\n  var i = 0;\n  lines\n    .filter(line => line.trim() !== '' && line.includes('--') && line.trim().endsWith('N/A'))\n    .forEach(line => {\n      const parts = line.replace('-', '').split('--').map(part => part.trim());\n      const [name, capacity, quantity] = parts;\n      \n      const code = capacity in codeMap ? codeMap[capacity] : '';\n\n      items[i].optName = name;\n      items[i].optCode = code;\n      items[i].optQuantity = quantity;\n\n      ++i;\n    });\n\n  const orderParts = lines[0].replace('Order:', '').split('|').map(part => part.trim());\n  const [orderCode, orderDate, poCode, customerAddress] = orderParts;\n\n  const invoiceParts = lines[1].replace('Invoice:', '').split('|').map(part => part.trim());\n  const [invoiceCode, invoiceDate, customerName] = invoiceParts;\n\n  const dt = invoiceDate === 'N/A' ? DateTime.fromFormat(orderDate, 'MM/dd/yyyy') : DateTime.fromFormat(invoiceDate, 'MM/dd/yyyy');\n  const sheet = dt.month.toString().padStart(2, '0') + '/' + dt.year.toString();\n\n  return {\n    json: {\n      ...item.json,\n      output: {\n        sheet: sheet,\n        order: {\n          code: orderCode,\n          po: poCode.replace('P0', 'PO'),\n          date: orderDate,\n          address: customerAddress.replaceAll(/\\s*,\\s*/g, ','),\n        },\n        invoice: {\n          code: invoiceCode,\n          date: invoiceDate,\n          customer: customerName,\n        },\n        items: items,\n      },\n    }\n  }\n});\n\nreturn result;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -510,8 +510,8 @@
             },
             {
               "id": "9705bec4-c032-400a-987e-340495a6cdc0",
-              "name": "Market Code",
-              "value": "==VLOOKUP(\"{{ $json.output.order.address }}\",MARKET!$A$1:$B$500,2,TRUE)",
+              "name": "Customer Code",
+              "value": "==VLOOKUP(\"{{ $json.output.order.address }}\",CUSTOMERS!$A$1:$B$500,2,TRUE)",
               "type": "string"
             },
             {
@@ -745,7 +745,8 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
               "id": "Order Date",
@@ -778,8 +779,8 @@
               "removed": true
             },
             {
-              "id": "Market Code",
-              "displayName": "Market Code",
+              "id": "Customer Code",
+              "displayName": "Customer Code",
               "required": false,
               "defaultMatch": false,
               "display": true,
