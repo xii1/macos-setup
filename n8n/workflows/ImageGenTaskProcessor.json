@@ -104,11 +104,11 @@
           "conditions": [
             {
               "id": "865adca5-7873-4ee4-a188-a3360d2ab395",
-              "leftValue": "={{ $json.main.data.image.id }}",
+              "leftValue": "={{ $binary.data.mimeType.startsWith('image') }}",
               "rightValue": "",
               "operator": {
-                "type": "string",
-                "operation": "notEmpty",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }

@@ -157,11 +157,11 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.main.data.image.id }}",
+                    "leftValue": "={{ $binary.data.mimeType.startsWith('image') }}",
                     "rightValue": "",
                     "operator": {
-                      "type": "string",
-                      "operation": "notEmpty",
+                      "type": "boolean",
+                      "operation": "true",
                       "singleValue": true
                     },
                     "id": "a52b4d20-b9ab-4ec8-b790-02410eab546f"
@@ -183,11 +183,11 @@
                 "conditions": [
                   {
                     "id": "64ad04b4-fb38-4c8e-a046-78e00d5e8657",
-                    "leftValue": "={{ $json.main.data.audio.id }}",
+                    "leftValue": "={{ $binary.data.mimeType.startsWith('audio') }}",
                     "rightValue": "",
                     "operator": {
-                      "type": "string",
-                      "operation": "notEmpty",
+                      "type": "boolean",
+                      "operation": "true",
                       "singleValue": true
                     }
                   }
@@ -756,11 +756,11 @@
           "conditions": [
             {
               "id": "1e92bf35-a095-4a39-9d43-7c741dfb5609",
-              "leftValue": "={{ $json.main.data.image.id }}",
+              "leftValue": "={{ $binary.data.mimeType.startsWith('image') }}",
               "rightValue": "",
               "operator": {
-                "type": "string",
-                "operation": "notEmpty",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }

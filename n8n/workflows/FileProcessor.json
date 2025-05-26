@@ -134,7 +134,7 @@
     },
     {
       "parameters": {
-        "jsCode": "for (const item of $input.all()) {\n  var type = '';\n  var extension = item.binary.data.fileExtension.trim().toLowerCase();\n  \n  if (item.json.main.data.image.id !== '') {\n    type = 'image';\n  } else if (item.json.main.data.audio.id !== '') {\n    type = 'audio';\n  } else if (item.json.main.data.video.id !== '') {\n    type = 'video';\n  } else {\n    if (extension.endsWith('pdf')) {\n      type = 'application'; \n    } else if (extension.endsWith('png') || extension.endsWith('jpeg') || extension.endsWith('jpg')) {\n      type = 'image';\n      if (extension.endsWith('jpg')) extension = 'jpeg';\n    } else {\n      type = 'text';\n      extension = 'plain';\n    }\n  }\n  \n  item.binary.data.mimeType = type + '/' + extension;\n}\n\nreturn $input.all();"
+        "jsCode": "for (const item of $input.all()) {\n  var type = '';\n  var extension = item.binary.data.fileExtension.trim().toLowerCase();\n\n  if (extension.endsWith('jpg')) {\n    item.binary.data.mimeType = 'image/jpeg';\n    continue;\n  }\n  \n  if (item.json.main.data.image.id !== '') {\n    type = 'image';\n  } else if (item.json.main.data.audio.id !== '') {\n    type = 'audio';\n  } else if (item.json.main.data.video.id !== '') {\n    type = 'video';\n  } else {\n    if (extension.endsWith('pdf')) {\n      type = 'application'; \n    } else if (extension.endsWith('png') || extension.endsWith('jpeg')) {\n      type = 'image';\n    } else {\n      type = 'text';\n      extension = 'plain';\n    }\n  }\n  \n  item.binary.data.mimeType = type + '/' + extension;\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
