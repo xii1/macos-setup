@@ -524,7 +524,7 @@
             {
               "id": "7507872f-9b80-4515-847e-39c24a9c5515",
               "name": "main.vars.invoice.extractor.prompt",
-              "value": "Extract information from the invoice image and format the output as (N/A if the field is not available or empty)\n<total/amount due with tip included> -- <store name> -- <billing date converted to MM/dd/yyyy HH:mm format>",
+              "value": "Extract information from the invoice image and format the output as (\"N/A\" if the field is not available or empty)\n<total/amount due with tip included> -- <store name> -- <billing date converted to MM/dd/yyyy HH:mm format>",
               "type": "string"
             },
             {

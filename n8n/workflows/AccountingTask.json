@@ -393,7 +393,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Extract information from the invoice or order (or both) image and format the output as (N/A if the field is not available or empty)\nOrder: <order number without PO number> | <order date converted from dd/MM/yyyy to MM/dd/yyyy format> | <purchase order code which is string with \\\"PO\\\" embedded or related to PO number> | <address of customer>\nInvoice: <invoice number> | <invoice date converted from dd/MM/yyyy to MM/dd/yyyy format> | <company name of customer or buyer>\n- <name of goods and services in invoice> -- <capacity or volume format as \\\"1L\\\", \\\"2L\\\", \\\"5L\\\" and so on> -- <quantity converted to number> -- <unit price follows original format or N/A if the field is empty>",
+        "text": "=Extract information from the invoice or order (or both) image and format the output as (\"N/A\" if the field is not available or empty):\nOrder: <order number> | <order date converted from dd/MM/yyyy to MM/dd/yyyy format> | <purchase order code which is a long string different from the order code, with or without \"PO\" embedded, and related to a PO number> | <address of customer as in the original>\nInvoice: <invoice number> | <invoice date converted from dd/MM/yyyy to MM/dd/yyyy format> | <company name of customer or buyer>\nOnly list items in the format below if and only if they are in an invoice:\n- <name of goods and services in invoice> -- <capacity or volume format as \"1L\", \"2L\", \"5L\" and so on> -- <quantity converted to number> -- <unit price as in the original format, \"N/A\" if the field is empty or zero>",
         "options": {
           "passthroughBinaryImages": true
         }
@@ -673,7 +673,7 @@
         "value": "={{ $json.output }}",
         "keyType": "string",
         "expire": true,
-        "ttl": 300
+        "ttl": 180
       },
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
