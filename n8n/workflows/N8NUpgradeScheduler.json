@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "command": "systemd-run --user --on-active=\"15\" --setenv=PATH=\"$PATH\" bash -c 'npm install -g n8n@latest && pm2 restart n8n'"
+        "command": "nohup bash -c 'sleep 15 && npm install -g n8n@latest && pm2 restart n8n' > /dev/null 2>&1 &"
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
