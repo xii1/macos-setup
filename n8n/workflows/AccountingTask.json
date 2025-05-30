@@ -511,7 +511,7 @@
             {
               "id": "9705bec4-c032-400a-987e-340495a6cdc0",
               "name": "Customer Code",
-              "value": "==VLOOKUP(\"{{ $json.output.order.address }}\",CUSTOMERS!$A$1:$B$500,2,TRUE)",
+              "value": "==XLOOKUP(\"{{ $json.output.order.address }}\",CUSTOMERS!A:A,CUSTOMERS!B:B,,-1,2)",
               "type": "string"
             },
             {
@@ -554,6 +554,12 @@
               "id": "fc05b53a-e09d-46ee-9618-18fbb40d7020",
               "name": "KM Quantity",
               "value": "={{ $json.item.optQuantity }}",
+              "type": "string"
+            },
+            {
+              "id": "469b40ea-4777-4244-87b4-220e473fb9cd",
+              "name": "Address Found",
+              "value": "==XLOOKUP(XLOOKUP(\"{{ $json.output.order.address }}\",CUSTOMERS!A:A,CUSTOMERS!B:B,,-1,2),CUSTOMERS!B:B,CUSTOMERS!A:A)",
               "type": "string"
             }
           ]
@@ -857,12 +863,24 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": true
+            },
+            {
+              "id": "Address Found",
+              "displayName": "Address Found",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
             }
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
         },
-        "options": {}
+        "options": {
+          "useAppend": true
+        }
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
