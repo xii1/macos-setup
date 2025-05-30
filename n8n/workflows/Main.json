@@ -1002,6 +1002,238 @@
       ],
       "id": "cd5d2c28-8e62-4edc-866b-920fbf2e3eef",
       "name": "execAccountingTask"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2260,
+        1940
+      ],
+      "id": "fe02c28b-4455-44d6-b22c-98ebc498ecd9",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "={{ $json.execution.id }}",
+        "options": {
+          "activeWorkflows": true
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        -1960,
+        1800
+      ],
+      "id": "3da480b3-ca7c-490a-a99c-5d5e2434223e",
+      "name": "n8n",
+      "credentials": {
+        "n8nApi": {
+          "id": "qfFeXO7X0Jet8m89",
+          "name": "local n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -1280,
+        1920
+      ],
+      "id": "d2cd311b-8d9b-4249-aa9a-2bb71a14ac14",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.main.app.chatId }}",
+        "text": "=❌ {{ $json.main.error.message }}\n_Error in this_ [n8n execution]({{ $json.main.error.url }})",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.main.app.messageId }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -680,
+        2060
+      ],
+      "id": "cdf244d9-2e08-4083-a624-7784fe8c0fcd",
+      "name": "Telegram",
+      "webhookId": "bd5b2879-d9d5-4a48-b94f-eeb2906792bd",
+      "credentials": {
+        "telegramApi": {
+          "id": "yF5Q4queu1lhvJeB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5efa0fd1-bd48-4036-af9f-3331e4476ee6",
+              "name": "main.error.message",
+              "value": "={{ $json.execution.error.message }}\n{{ $json.execution.error.description }}",
+              "type": "string"
+            },
+            {
+              "id": "132d6480-9673-4055-b90f-81b683dab5f9",
+              "name": "main.error.url",
+              "value": "={{ $json.execution.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1760,
+        1940
+      ],
+      "id": "5494235e-f415-46a4-81f6-c0fddd4cf2a2",
+      "name": "setErrorMessage"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d38bed2-c0fd-4ad1-af66-648b14d93d62",
+              "name": "main.app",
+              "value": "={{ $json.data.executionData.nodeExecutionStack[0].data.main[0][0].json.main.app }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1580,
+        1800
+      ],
+      "id": "8cf39fb8-3e45-4261-86b1-57167bc0d3e6",
+      "name": "getAppInfo"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.main.app.channelId }}",
+          "mode": "id"
+        },
+        "text": "=❌ {{ $json.main.error.message }}\n_Error in this <{{ $json.main.error.url }}|n8n execution>_",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.main.app.eventTime }}",
+              "reply_broadcast": true
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -680,
+        1780
+      ],
+      "id": "4ec0325b-3be2-4c9d-a0fc-b16668fde619",
+      "name": "Slack",
+      "webhookId": "16b4c76e-40d0-4dc2-b9de-87a0b901cad8",
+      "credentials": {
+        "slackApi": {
+          "id": "nq9l1vLjoG9bmDhB",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "98fc8a35-0e2e-4324-9494-a8aaa5d5f773"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d04c2579-5488-4f01-b2ae-0b5b303e819b",
+                    "leftValue": "={{ $json.main.app.type }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -980,
+        1920
+      ],
+      "id": "303cefc2-db1c-4ea8-9a71-2e865c1e160e",
+      "name": "appRule"
     }
   ],
   "connections": {
@@ -1298,6 +1530,84 @@
         [
           {
             "node": "execGeneralTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "setErrorMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "getAppInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "appRule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setErrorMessage": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "getAppInfo": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appRule": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
             "type": "main",
             "index": 0
           }
